@@ -1,4 +1,5 @@
 set(headers
+    ${CMAKE_CURRENT_BINARY_DIR}/superlu_config.h
     supermatrix.h
     slu_Cnames.h
     slu_dcomplex.h

@@ -46,7 +46,7 @@ at the top-level directory.
  *
  *    Performs numeric block updates (sup-panel) in topological order.
  *    It features: col-col, 2cols-col, 3cols-col, and sup-col updates.
- *    Special processing on the supernodal portion of L\U[*,j]
+ *    Special processing on the supernodal portion of L\\U[*,j]
  *
  *    Before entering this routine, the original nonzeros in the panel 
  *    were already copied into the spa[m,w].
@@ -87,17 +87,17 @@ dpanel_bmod (
     int          fsupc, nsupc, nsupr, nrow;
     int          krep, krep_ind;
     double       ukj, ukj1, ukj2;
-    int          luptr, luptr1, luptr2;
+    int_t        luptr, luptr1, luptr2;
     int          segsze;
     int          block_nrow;  /* no of rows in a block row */
-    register int lptr;	      /* Points to the row subscripts of a supernode */
+    int_t        lptr;	      /* Points to the row subscripts of a supernode */
     int          kfnz, irow, no_zeros; 
     register int isub, isub1, i;
     register int jj;	      /* Index through each column in the panel */
     int          *xsup, *supno;
-    int          *lsub, *xlsub;
+    int_t        *lsub, *xlsub;
     double       *lusup;
-    int          *xlusup;
+    int_t        *xlusup;
     int          *repfnz_col; /* repfnz[] for a column in the panel */
     double       *dense_col;  /* dense[] for a column in the panel */
     double       *tempv1;             /* Used in 1-D update */
@@ -454,6 +454,4 @@ dpanel_bmod (
     } /* for each updating supernode ... */
 
 }
-
-
 
