@@ -50,13 +50,12 @@ at the top-level directory.
     ===================================================================== 
 </pre>
 */
-double scsum1_slu(int *n, complex *cx, int *incx)
+double scsum1_slu(int *n, singlecomplex *cx, int *incx)
 {
     /* System generated locals */
-    int i__1;
     float ret_val;
     /* Builtin functions */
-    double c_abs(complex *);
+    double c_abs(singlecomplex *);
     /* Local variables */
     int i, nincx;
     float stemp;
@@ -77,7 +76,6 @@ double scsum1_slu(int *n, complex *cx, int *incx)
 /*     CODE FOR INCREMENT NOT EQUAL TO 1 */
 
     nincx = *n * *incx;
-    i__1 = nincx;
     for (i = 1; *incx < 0 ? i >= nincx : i <= nincx; i += *incx) {
 
 /*        NEXT LINE MODIFIED. */

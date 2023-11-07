@@ -324,7 +324,7 @@ at the top-level directory.
  * mem_usage (output) mem_usage_t*
  *         Record the memory usage statistics, consisting of following fields:
  *         - for_lu (float)
- *           The amount of space used in bytes for L\U data structures.
+ *           The amount of space used in bytes for L\\U data structures.
  *         - total_needed (float)
  *           The amount of space needed in bytes to perform factorization.
  *         - expansions (int)
@@ -356,10 +356,10 @@ at the top-level directory.
 void
 sgssvx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
        int *etree, char *equed, float *R, float *C,
-       SuperMatrix *L, SuperMatrix *U, void *work, int lwork,
+       SuperMatrix *L, SuperMatrix *U, void *work, int_t lwork,
        SuperMatrix *B, SuperMatrix *X, float *recip_pivot_growth, 
        float *rcond, float *ferr, float *berr, 
-       GlobalLU_t *Glu, mem_usage_t *mem_usage, SuperLUStat_t *stat, int *info )
+       GlobalLU_t *Glu, mem_usage_t *mem_usage, SuperLUStat_t *stat, int_t *info )
 {
 
 

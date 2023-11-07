@@ -99,20 +99,21 @@ cgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
     _fcd ftcs1, ftcs2, ftcs3, ftcs4;
 #endif
 #ifdef USE_VENDOR_BLAS
-    complex   alpha = {1.0, 0.0}, beta = {1.0, 0.0};
-    complex   *work_col;
+    singlecomplex   alpha = {1.0, 0.0}, beta = {1.0, 0.0};
+    singlecomplex   *work_col;
 #endif
-    complex   temp_comp;
+    singlecomplex   temp_comp;
     DNformat *Bstore;
-    complex   *Bmat;
+    singlecomplex   *Bmat;
     SCformat *Lstore;
     NCformat *Ustore;
-    complex   *Lval, *Uval;
-    int      fsupc, nrow, nsupr, nsupc, luptr, istart, irow;
-    int      i, j, k, iptr, jcol, n, ldb, nrhs;
-    complex   *work, *rhs_work, *soln;
+    singlecomplex   *Lval, *Uval;
+    int      fsupc, nrow, nsupr, nsupc, irow;
+    int_t    i, j, k, luptr, istart, iptr;
+    int      jcol, n, ldb, nrhs;
+    singlecomplex   *work, *rhs_work, *soln;
     flops_t  solve_ops;
-    void cprint_soln(int n, int nrhs, complex *soln);
+    void cprint_soln(int n, int nrhs, singlecomplex *soln);
 
     /* Test input parameters ... */
     *info = 0;
@@ -130,8 +131,8 @@ cgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
 	      B->Stype != SLU_DN || B->Dtype != SLU_C || B->Mtype != SLU_GE )
 	*info = -6;
     if ( *info ) {
-	i = -(*info);
-	input_error("cgstrs", &i);
+	int ii = -(*info);
+	input_error("cgstrs", &ii);
 	return;
     }
 
@@ -231,7 +232,7 @@ cgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
 	    } /* else ... */
 	} /* for L-solve */
 
-#ifdef DEBUG
+#if ( DEBUGlevel>=2 )
   	printf("After L-solve: y=\n");
 	cprint_soln(n, nrhs, Bmat);
 #endif
@@ -286,7 +287,7 @@ cgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
 	    
 	} /* for U-solve */
 
-#ifdef DEBUG
+#if ( DEBUGlevel>=2 )
   	printf("After U-solve: x=\n");
 	cprint_soln(n, nrhs, Bmat);
 #endif
@@ -343,7 +344,7 @@ cgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
  * Diagnostic print of the solution vector 
  */
 void
-cprint_soln(int n, int nrhs, complex *soln)
+cprint_soln(int n, int nrhs, singlecomplex *soln)
 {
     int i;
 

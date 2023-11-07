@@ -46,7 +46,7 @@ at the top-level directory.
  *
  *    Performs numeric block updates (sup-panel) in topological order.
  *    It features: col-col, 2cols-col, 3cols-col, and sup-col updates.
- *    Special processing on the supernodal portion of L\U[*,j]
+ *    Special processing on the supernodal portion of L\\U[*,j]
  *
  *    Before entering this routine, the original nonzeros in the panel 
  *    were already copied into the spa[m,w].
@@ -63,8 +63,8 @@ cpanel_bmod (
 	    const int  w,          /* in */
 	    const int  jcol,       /* in */
 	    const int  nseg,       /* in */
-	    complex     *dense,     /* out, of size n by w */
-	    complex     *tempv,     /* working array */
+	    singlecomplex     *dense,     /* out, of size n by w */
+	    singlecomplex     *tempv,     /* working array */
 	    int        *segrep,    /* in */
 	    int        *repfnz,    /* in, of size n by w */
 	    GlobalLU_t *Glu,       /* modified */
@@ -80,31 +80,31 @@ cpanel_bmod (
          ftcs3 = _cptofcd("U", strlen("U"));
 #endif
     int          incx = 1, incy = 1;
-    complex       alpha, beta;
+    singlecomplex       alpha, beta;
 #endif
 
     register int k, ksub;
     int          fsupc, nsupc, nsupr, nrow;
     int          krep, krep_ind;
-    complex       ukj, ukj1, ukj2;
-    int          luptr, luptr1, luptr2;
+    singlecomplex       ukj, ukj1, ukj2;
+    int_t        luptr, luptr1, luptr2;
     int          segsze;
     int          block_nrow;  /* no of rows in a block row */
-    register int lptr;	      /* Points to the row subscripts of a supernode */
+    int_t        lptr;	      /* Points to the row subscripts of a supernode */
     int          kfnz, irow, no_zeros; 
     register int isub, isub1, i;
     register int jj;	      /* Index through each column in the panel */
     int          *xsup, *supno;
-    int          *lsub, *xlsub;
-    complex       *lusup;
-    int          *xlusup;
+    int_t        *lsub, *xlsub;
+    singlecomplex       *lusup;
+    int_t        *xlusup;
     int          *repfnz_col; /* repfnz[] for a column in the panel */
-    complex       *dense_col;  /* dense[] for a column in the panel */
-    complex       *tempv1;             /* Used in 1-D update */
-    complex       *TriTmp, *MatvecTmp; /* used in 2-D update */
-    complex      zero = {0.0, 0.0};
-    complex      one = {1.0, 0.0};
-    complex      comp_temp, comp_temp1;
+    singlecomplex       *dense_col;  /* dense[] for a column in the panel */
+    singlecomplex       *tempv1;             /* Used in 1-D update */
+    singlecomplex       *TriTmp, *MatvecTmp; /* used in 2-D update */
+    singlecomplex      zero = {0.0, 0.0};
+    singlecomplex      one = {1.0, 0.0};
+    singlecomplex      comp_temp, comp_temp1;
     register int ldaTmp;
     register int r_ind, r_hi;
     int  maxsuper, rowblk, colblk;
@@ -114,7 +114,7 @@ cpanel_bmod (
     supno   = Glu->supno;
     lsub    = Glu->lsub;
     xlsub   = Glu->xlsub;
-    lusup   = (complex *) Glu->lusup;
+    lusup   = (singlecomplex *) Glu->lusup;
     xlusup  = Glu->xlusup;
     
     maxsuper = SUPERLU_MAX( sp_ienv(3), sp_ienv(7) );
@@ -482,6 +482,4 @@ cpanel_bmod (
     } /* for each updating supernode ... */
 
 }
-
-
 
