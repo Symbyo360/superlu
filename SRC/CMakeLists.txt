@@ -23,7 +23,7 @@ set(sources
   ilu_relax_snode.c
   ilu_heap_relax_snode.c
   mark_relax.c
-  mc64ad.c
+  # mc64ad.c
   qselect.c
   input_error.c
 )
@@ -118,7 +118,7 @@ if(enable_double)
     dmyblas2.c
     dgsisx.c
     dgsitrf.c
-    dldperm.c
+    # dldperm.c
     ilu_ddrop_row.c
     ilu_dsnode_dfs.c
     ilu_dcolumn_dfs.c

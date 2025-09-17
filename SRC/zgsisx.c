@@ -441,7 +441,7 @@ zgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
     nofact = (options->Fact != FACTORED);
     equil = (options->Equil == YES);
     notran = (options->Trans == NOTRANS);
-    mc64 = (options->RowPerm == LargeDiag_MC64);
+    mc64 = 0;
     if ( nofact ) {
 	*(unsigned char *)equed = 'N';
 	rowequ = FALSE;
@@ -546,41 +546,41 @@ zgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
 	doublecomplex *nzval = (doublecomplex *)Astore->nzval;
 
 	if ( mc64 ) {
-	    t0 = SuperLU_timer_();
-	    if ((perm = int32Malloc(n)) == NULL)
-		ABORT("SUPERLU_MALLOC fails for perm[]");
+	  /*   t0 = SuperLU_timer_(); */
+	  /*   if ((perm = int32Malloc(n)) == NULL) */
+		/* ABORT("SUPERLU_MALLOC fails for perm[]"); */
 
-	    info1 = zldperm(5, n, nnz, colptr, rowind, nzval, perm, R, C);
+	  /*   info1 = zldperm(5, n, nnz, colptr, rowind, nzval, perm, R, C); */
 
-	    if (info1 != 0) { /* MC64 fails, call zgsequ() later */
-		mc64 = 0;
-		SUPERLU_FREE(perm);
-		perm = NULL;
-	    } else {
-	        if ( equil ) {
-	            rowequ = colequ = 1;
-		    for (i = 0; i < n; i++) {
-		        R[i] = exp(R[i]);
-		        C[i] = exp(C[i]);
-		    }
-		    /* scale the matrix */
-		    for (j = 0; j < n; j++) {
-		        for (i = colptr[j]; i < colptr[j + 1]; i++) {
-                            zd_mult(&nzval[i], &nzval[i], R[rowind[i]] * C[j]);
-		        }
-		    }
-	            *equed = 'B';
-                }
+	  /*   if (info1 != 0) { /\* MC64 fails, call zgsequ() later *\/ */
+		/* mc64 = 0; */
+		/* SUPERLU_FREE(perm); */
+		/* perm = NULL; */
+	  /*   } else { */
+	  /*       if ( equil ) { */
+	  /*           rowequ = colequ = 1; */
+		/*     for (i = 0; i < n; i++) { */
+		/*         R[i] = exp(R[i]); */
+		/*         C[i] = exp(C[i]); */
+		/*     } */
+		/*     /\* scale the matrix *\/ */
+		/*     for (j = 0; j < n; j++) { */
+		/*         for (i = colptr[j]; i < colptr[j + 1]; i++) { */
+    /*                         zd_mult(&nzval[i], &nzval[i], R[rowind[i]] * C[j]); */
+		/*         } */
+		/*     } */
+	  /*           *equed = 'B'; */
+    /*             } */
 
-                /* permute the matrix */
-		for (j = 0; j < n; j++) {
-		    for (i = colptr[j]; i < colptr[j + 1]; i++) {
-			/*nzval[i] *= R[rowind[i]] * C[j];*/
-			rowind[i] = perm[rowind[i]];
-		    }
-		}
-	    }
-	    utime[EQUIL] = SuperLU_timer_() - t0;
+    /*             /\* permute the matrix *\/ */
+		/* for (j = 0; j < n; j++) { */
+		/*     for (i = colptr[j]; i < colptr[j + 1]; i++) { */
+		/* 	/\*nzval[i] *= R[rowind[i]] * C[j];*\/ */
+		/* 	rowind[i] = perm[rowind[i]]; */
+		/*     } */
+		/* } */
+	  /*   } */
+	  /*   utime[EQUIL] = SuperLU_timer_() - t0; */
 	}
 
 	if ( mc64==0 && equil ) { /* Only perform equilibration, no row perm */
@@ -631,23 +631,23 @@ zgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
 	}
 
 	if ( mc64 ) { /* Fold MC64's perm[] into perm_r[]. */
-	    NCformat *Astore = AA->Store;
-	    int_t nnz = Astore->nnz, *rowind = Astore->rowind;
-	    int *perm_tmp, *iperm;
-	    if ((perm_tmp = int32Malloc(2*n)) == NULL)
-		ABORT("SUPERLU_MALLOC fails for perm_tmp[]");
-	    iperm = perm_tmp + n;
-	    for (i = 0; i < n; ++i) perm_tmp[i] = perm_r[perm[i]];
-	    for (i = 0; i < n; ++i) {
-		perm_r[i] = perm_tmp[i];
-		iperm[perm[i]] = i;
-	    }
+	  /*   NCformat *Astore = AA->Store; */
+	  /*   int_t nnz = Astore->nnz, *rowind = Astore->rowind; */
+	  /*   int *perm_tmp, *iperm; */
+	  /*   if ((perm_tmp = int32Malloc(2*n)) == NULL) */
+		/* ABORT("SUPERLU_MALLOC fails for perm_tmp[]"); */
+	  /*   iperm = perm_tmp + n; */
+	  /*   for (i = 0; i < n; ++i) perm_tmp[i] = perm_r[perm[i]]; */
+	  /*   for (i = 0; i < n; ++i) { */
+		/* perm_r[i] = perm_tmp[i]; */
+		/* iperm[perm[i]] = i; */
+	  /*   } */
 
-	    /* Restore A's original row indices. */
-	    for (i = 0; i < nnz; ++i) rowind[i] = iperm[rowind[i]];
+	  /*   /\* Restore A's original row indices. *\/ */
+	  /*   for (i = 0; i < nnz; ++i) rowind[i] = iperm[rowind[i]]; */
 
-	    SUPERLU_FREE(perm); /* MC64 permutation */
-	    SUPERLU_FREE(perm_tmp);
+	  /*   SUPERLU_FREE(perm); /\* MC64 permutation *\/ */
+	  /*   SUPERLU_FREE(perm_tmp); */
 	}
     }
 
