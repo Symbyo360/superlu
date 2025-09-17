@@ -27,15 +27,15 @@ else()
   set(enable_blaslib_xSDK ${enable_internal_blaslib})
 endif()
 
-if (NOT "${enable_fortran}" STREQUAL "")
-  if (XSDK_ENABLE_Fortran)
-    set(enable_fortran_xSDK ON)
-  else()
-    set(enable_fortran_xSDK OFF)
-  endif()
-else()
-  set(enable_fortran_xSDK ${enable_fortran})
-endif()
+# if (NOT "${enable_fortran}" STREQUAL "")
+#   if (XSDK_ENABLE_Fortran)
+#     set(enable_fortran_xSDK ON)
+#   else()
+#     set(enable_fortran_xSDK OFF)
+#   endif()
+# else()
+#   set(enable_fortran_xSDK ${enable_fortran})
+# endif()
 
 # set up options
 option(enable_internal_blaslib  "Build the CBLAS library" ${enable_blaslib_xSDK})
@@ -43,10 +43,10 @@ option(enable_single    "Enable single precision library" ON)
 option(enable_double    "Enable double precision library" ON)
 option(enable_complex   "Enable single precision complex library" ON)
 option(enable_complex16 "Enable double precision complex (complex16) library" ON)
-option(enable_matlabmex "Build the Matlab mex library" OFF)
+# option(enable_matlabmex "Build the Matlab mex library" OFF)
 option(enable_doc       "Add target 'doc' to build Doxygen documentation" OFF)
 option(enable_examples  "Build examples" ON)
-option(enable_fortran   "Build Fortran interface" ${enable_fortran_xSDK})
+# option(enable_fortran   "Build Fortran interface" ${enable_fortran_xSDK})
 option(enable_tests     "Build tests" ON)
 option(enable_compatibility_complex "Provide typdef 'complex' for compatibility with older SuperLU version" OFF)
 
@@ -95,9 +95,9 @@ else()
 endif()
 
 enable_language(C)
-if (enable_fortran)
-  enable_language(Fortran)
-endif()
+# if (enable_fortran)
+#   enable_language(Fortran)
+# endif()
 set(SUPERLU_VERSION "${PROJECT_VERSION}")
 set(SUPERLU_REV "${PROJECT_REV}")
 
@@ -216,7 +216,7 @@ endif()
 # Include directories
 #
 ######################################################################
-include_directories(${CMAKE_BINARY_DIR}/SRC) # For superlu_config.h
+# include_directories(${CMAKE_BINARY_DIR}/SRC) # For superlu_config.h
 if (TPL_METIS_INCLUDE_DIRS)
   include_directories(${TPL_METIS_INCLUDE_DIRS})  ## metis
 endif ()
@@ -232,11 +232,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/superlu.pc.in ${CMAKE_CURRENT_BINARY_
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/superlu.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
-configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_BINARY_DIR}/SRC/superlu_config.h)
-configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_SOURCE_DIR}/SRC/superlu_config.h)
+# configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_BINARY_DIR}/SRC/superlu_config.h)
+# configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_SOURCE_DIR}/SRC/superlu_config.h)
 
 # Following is to configure a header file for FORTRAN code
-configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_BINARY_DIR}/FORTRAN/superlu_config.h)
+# configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_BINARY_DIR}/FORTRAN/superlu_config.h)
 
 ######################################################################
 #
@@ -246,9 +246,9 @@ configure_file(${SuperLU_SOURCE_DIR}/SRC/superlu_config.h.in ${SuperLU_BINARY_DI
 
 add_subdirectory(SRC)
 
-if(enable_matlabmex)
-  add_subdirectory(MATLAB)
-endif()
+# if(enable_matlabmex)
+#   add_subdirectory(MATLAB)
+# endif()
 
 if(enable_tests)
   enable_testing()
@@ -256,9 +256,9 @@ if(enable_tests)
 endif()
 
 add_custom_target(examples)
-if (enable_fortran)
-  add_subdirectory(FORTRAN)
-endif()
+# if (enable_fortran)
+#   add_subdirectory(FORTRAN)
+# endif()
 
 add_subdirectory(EXAMPLE)
 
