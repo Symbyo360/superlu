@@ -13,10 +13,11 @@ at the top-level directory.
  * \brief Performs numerical pivoting
  *
  * <pre>
- * -- SuperLU routine (version 3.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * October 15, 2003
+ * August 2024
  *
  * Copyright (c) 1994 by Xerox Corporation.  All rights reserved.
  *
@@ -119,33 +120,29 @@ if ( jcol == MIN_COL ) {
     diagind = iperm_c[jcol];
     pivmax = 0.0;
     pivptr = nsupc;
-    diag = EMPTY;
+    diag = SLU_EMPTY;
     old_pivptr = nsupc;
     for (isub = nsupc; isub < nsupr; ++isub) {
-	    rtemp = fabs (lu_col_ptr[isub]);
+	rtemp = fabs (lu_col_ptr[isub]);
 	if ( rtemp > pivmax ) {
-	        pivmax = rtemp;
-	        pivptr = isub;
-	    }
-    	if ( *usepr && lsub_ptr[isub] == *pivrow ) old_pivptr = isub;
-	    if ( lsub_ptr[isub] == diagind ) diag = isub;
+	    pivmax = rtemp;
+	    pivptr = isub;
+	}
+	if ( *usepr && lsub_ptr[isub] == *pivrow ) old_pivptr = isub;
+	if ( lsub_ptr[isub] == diagind ) diag = isub;
     }
 
     /* Test for singularity */
     if ( pivmax == 0.0 ) {
 #if 0
-        // There is no valid pivot.  
-        // jcol represents the rank of U
-        // report the rank let dgstrf handle the pivot
-#if 1
-    *pivrow = lsub_ptr[pivptr];
-    perm_r[*pivrow] = jcol;
-#else
-    perm_r[diagind] = jcol;
+        // There is no valid pivot.
+        // jcol represents the rank of U, 
+        // report the rank, let dgstrf handle the pivot
+	*pivrow = lsub_ptr[pivptr];
+	perm_r[*pivrow] = jcol;
 #endif
-#endif
-	    *usepr = 0;
-	    return (jcol+1);
+	*usepr = 0;
+	return (jcol+1);
     }
 
     thresh = u * pivmax;

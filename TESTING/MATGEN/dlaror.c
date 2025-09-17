@@ -1,48 +1,43 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include <math.h>
 #include <string.h>
-#include "f2c.h"
 
 /* Table of constant values */
 
-static doublereal c_b9 = 0.;
-static doublereal c_b10 = 1.;
-static integer c__3 = 3;
-static integer c__1 = 1;
+static double c_b9 = 0.;
+static double c_b10 = 1.;
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int dlaror_slu(char *side, char *init, integer *m, integer *n, 
-	doublereal *a, integer *lda, integer *iseed, doublereal *x, integer *
+/* Subroutine */ int dlaror_slu(char *side, char *init, int *m, int *n,
+	double *a, int *lda, int *iseed, double *x, int *
 	info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2;
-    doublereal d__1;
-
-    /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    int a_dim1, a_offset, i__1, i__2;
+    double d__1;
 
     /* Local variables */
-    static integer kbeg;
-    extern /* Subroutine */ int dger_(integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer jcol, irow;
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    static integer j;
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *);
-    extern /* Subroutine */ int dgemv_(char *, integer *, integer *, 
-	    doublereal *, doublereal *, integer *, doublereal *, integer *, 
-	    doublereal *, doublereal *, integer *);
-    static integer ixfrm, itype, nxfrm;
-    static doublereal xnorm;
-    extern doublereal dlarnd_slu(integer *, integer *);
-    extern /* Subroutine */ int dlaset_slu(char *, integer *, integer *, 
-					doublereal *, doublereal *, doublereal *, integer *);
+    static int kbeg;
+    extern /* Subroutine */ int dger_(int *, int *, double *,
+	    double *, int *, double *, int *, double *,
+	    int *);
+    static int jcol, irow;
+    extern double dnrm2_(int *, double *, int *);
+    static int j;
+    extern /* Subroutine */ int dscal_(int *, double *, double *,
+	    int *);
+    extern /* Subroutine */ int dgemv_(char *, int *, int *,
+	    double *, double *, int *, double *, int *,
+	    double *, double *, int *);
+    static int ixfrm, itype, nxfrm;
+    static double xnorm;
+    extern double dlarnd_slu(int *, int *);
+    extern /* Subroutine */ int dlaset_slu(char *, int *, int *,
+					double *, double *, double *, int *);
     extern int input_error(char *, int *);
-    static doublereal factor, xnorms;
+    static double factor, xnorms;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -221,11 +216,11 @@ static integer c__1 = 1;
  X */
 
 	xnorm = dnrm2_(&ixfrm, &x[kbeg], &c__1);
-	xnorms = d_sign(&xnorm, &x[kbeg]);
+	xnorms = copysign(xnorm, x[kbeg]);
 	d__1 = -x[kbeg];
-	x[kbeg + nxfrm] = d_sign(&c_b10, &d__1);
+	x[kbeg + nxfrm] = copysign(c_b10, d__1);
 	factor = xnorms * (xnorms + x[kbeg]);
-	if (abs(factor) < 1e-20) {
+	if (fabs(factor) < 1e-20) {
 	    *info = 1;
 	    input_error("DLAROR", info);
 	    return 0;
@@ -263,7 +258,7 @@ static integer c__1 = 1;
     }
 
     d__1 = dlarnd_slu(&c__3, &iseed[1]);
-    x[nxfrm * 2] = d_sign(&c_b10, &d__1);
+    x[nxfrm * 2] = copysign(c_b10, d__1);
 
 /*     Scale the matrix A by D. */
 

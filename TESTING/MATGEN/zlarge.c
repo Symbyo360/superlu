@@ -1,41 +1,36 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_dcomplex.h"
+#include "../../SRC/slu_ddefs.h"
+#include "../../SRC/slu_zdefs.h"
 
 /* Table of constant values */
 
 static doublecomplex c_b1 = {0.,0.};
 static doublecomplex c_b2 = {1.,0.};
-static integer c__3 = 3;
-static integer c__1 = 1;
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int zlarge_slu(integer *n, doublecomplex *a, integer *lda, 
-	integer *iseed, doublecomplex *work, integer *info)
+/* Subroutine */ int zlarge_slu(int *n, doublecomplex *a, int *lda,
+	int *iseed, doublecomplex *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1;
-    doublereal d__1;
+    int a_dim1, a_offset, i__1;
+    double d__1;
     doublecomplex z__1;
 
-    /* Builtin functions */
-    double z_abs(doublecomplex *);
-    void z_div(doublecomplex *, doublecomplex *, doublecomplex *);
-
     /* Local variables */
-    static integer i;
-    extern /* Subroutine */ int zgerc_(integer *, integer *, doublecomplex *, 
-	    doublecomplex *, integer *, doublecomplex *, integer *, 
-	    doublecomplex *, integer *), zscal_(integer *, doublecomplex *, 
-	    doublecomplex *, integer *), zgemv_(char *, integer *, integer *, 
-	    doublecomplex *, doublecomplex *, integer *, doublecomplex *, 
-	    integer *, doublecomplex *, doublecomplex *, integer *);
-    extern doublereal dznrm2_(integer *, doublecomplex *, integer *);
+    static int i;
+    extern /* Subroutine */ int zgerc_(int *, int *, doublecomplex *,
+	    doublecomplex *, int *, doublecomplex *, int *,
+	    doublecomplex *, int *), zscal_(int *, doublecomplex *,
+					    doublecomplex *, int *);
+
+    extern double dznrm2_(int *, doublecomplex *, int *);
     static doublecomplex wa, wb;
-    static doublereal wn;
-    extern /* Subroutine */ int zlarnv_slu(integer *, integer *, integer *, doublecomplex *);
+    static double wn;
+    extern /* Subroutine */ int zlarnv_slu(int *, int *, int *, doublecomplex *);
     extern int input_error(char *, int *);
     static doublecomplex tau;
 
@@ -96,7 +91,7 @@ static integer c__1 = 1;
     *info = 0;
     if (*n < 0) {
 	*info = -1;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -3;
     }
     if (*info < 0) {

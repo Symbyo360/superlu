@@ -1,33 +1,30 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include <stdbool.h>
+#include "../../SRC/slu_scomplex.h"
 
 /* Table of constant values */
 
-static integer c__4 = 4;
-static integer c__8 = 8;
+static int c__4 = 4;
+static int c__8 = 8;
 
-/* Subroutine */ int clarot_slu(logical *lrows, logical *lleft, logical *lright, 
-	integer *nl, complex *c, complex *s, complex *a, integer *lda, 
-	complex *xleft, complex *xright)
+/* Subroutine */
+int clarot_slu(bool *lrows, bool *lleft, bool *lright,
+	int *nl, singlecomplex *c, singlecomplex *s, singlecomplex *a, int *lda,
+	singlecomplex *xleft, singlecomplex *xright)
 {
     /* System generated locals */
-    integer i__1, i__2, i__3, i__4;
-    complex q__1, q__2, q__3, q__4, q__5, q__6;
-
-    /* Builtin functions */
-    void r_cnjg(complex *, complex *);
+    int i__1, i__2, i__3, i__4;
+    singlecomplex q__1, q__2, q__3, q__4, q__5, q__6;
 
     /* Local variables */
-    static integer iinc, j, inext;
-    static complex tempx;
-    static integer ix, iy, nt;
-    static complex xt[2], yt[2];
+    static int iinc, j, inext;
+    static singlecomplex tempx;
+    static int ix, iy, nt;
+    static singlecomplex xt[2], yt[2];
     extern int input_error(char *, int *);
-    static integer iyt;
+    static int iyt;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -41,7 +38,7 @@ static integer c__8 = 8;
 
        CLAROT applies a (Givens) rotation to two adjacent rows or   
        columns, where one element of the first and/or last column/row   
-       may be a separate variable.  This is specifically indended   
+       may be a separate variable.  This is specifically intended   
        for use on matrices stored in some format other than GE, so   
        that elements of the matrix may be used or modified for which   
        no array element is provided.   
@@ -298,7 +295,7 @@ static integer c__8 = 8;
 	tempx.r = q__1.r, tempx.i = q__1.i;
 	i__2 = iy + j * iinc;
 	r_cnjg(&q__4, s);
-	q__3.r = -(doublereal)q__4.r, q__3.i = -(doublereal)q__4.i;
+	q__3.r = -(double)q__4.r, q__3.i = -(double)q__4.i;
 	i__3 = ix + j * iinc;
 	q__2.r = q__3.r * a[i__3].r - q__3.i * a[i__3].i, q__2.i = q__3.r * a[
 		i__3].i + q__3.i * a[i__3].r;
@@ -327,7 +324,7 @@ static integer c__8 = 8;
 	tempx.r = q__1.r, tempx.i = q__1.i;
 	i__2 = j - 1;
 	r_cnjg(&q__4, s);
-	q__3.r = -(doublereal)q__4.r, q__3.i = -(doublereal)q__4.i;
+	q__3.r = -(double)q__4.r, q__3.i = -(double)q__4.i;
 	i__3 = j - 1;
 	q__2.r = q__3.r * xt[i__3].r - q__3.i * xt[i__3].i, q__2.i = q__3.r * 
 		xt[i__3].i + q__3.i * xt[i__3].r;

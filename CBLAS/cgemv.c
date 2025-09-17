@@ -6,22 +6,21 @@
 #include <string.h>
 #include "f2c.h"
 
-/* Subroutine */ int cgemv_(char *trans, integer *m, integer *n, complex *
-	alpha, complex *a, integer *lda, complex *x, integer *incx, complex *
-	beta, complex *y, integer *incy)
+/* Subroutine */ void cgemv_(char *trans, integer *m, integer *n, singlecomplex *
+	alpha, singlecomplex *a, integer *lda, singlecomplex *x, integer *incx, singlecomplex *
+	beta, singlecomplex *y, integer *incy)
 {
-
 
     /* System generated locals */
 
-    complex q__1, q__2, q__3;
+    singlecomplex q__1, q__2, q__3;
 
     /* Builtin functions */
-    void r_cnjg(complex *, complex *);
+    void r_cnjg(singlecomplex *, singlecomplex *);
 
     /* Local variables */
     integer info;
-    complex temp;
+    singlecomplex temp;
     integer lenx, leny, i, j;
     integer ix, iy, jx, jy, kx, ky;
     logical noconj;
@@ -149,14 +148,14 @@
     }
     if (info != 0) {
 	input_error("CGEMV ", &info);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*m == 0 || *n == 0 || (alpha->r == 0.f && alpha->i == 0.f && beta->r 
 			       == 1.f && beta->i == 0.f)) {
-	return 0;
+	return;
     }
 
     noconj = (strncmp(trans, "T", 1)==0);
@@ -224,7 +223,7 @@
 	}
     }
     if (alpha->r == 0.f && alpha->i == 0.f) {
-	return 0;
+	return;
     }
     if (strncmp(trans, "N", 1)==0) {
 
@@ -346,7 +345,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of CGEMV . */
 

@@ -1,7 +1,10 @@
-#include "f2c.h"
+#include "../../SRC/slu_ddefs.h"
+#include "powi.h"
 
-/* Subroutine */ int dlartg_slu(doublereal *f, doublereal *g, doublereal *cs, 
-	doublereal *sn, doublereal *r)
+#include <stdbool.h>
+#include <math.h>
+
+/* Subroutine */ int dlartg_slu(double *f, double *g, double *cs, double *sn, double *r)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -48,29 +51,28 @@
     ===================================================================== 
 */
     /* Initialized data */
-    static logical first = TRUE_;
+    static bool first = true;
     /* System generated locals */
-    integer i__1;
-    doublereal d__1, d__2;
-    /* Builtin functions */
-    double log(doublereal), pow_di(doublereal *, integer *), sqrt(doublereal);
+    int i__1;
+    double d__1, d__2;
+
     /* Local variables */
-    static integer i;
-    static doublereal scale;
-    static integer count;
-    static doublereal f1, g1, safmn2, safmx2;
-    extern doublereal dmach(char *);
-    static doublereal safmin, eps;
+    static int i;
+    static double scale;
+    static int count;
+    static double f1, g1, safmn2, safmx2;
+    extern double dmach(char *);
+    static double safmin, eps;
 
 
 
     if (first) {
-	first = FALSE_;
+	first = false;
 	safmin = dmach("S");
 	eps = dmach("E");
 	d__1 = dmach("B");
-	i__1 = (integer) (log(safmin / eps) / log(dmach("B")) / 2.);
-	safmn2 = pow_di(&d__1, &i__1);
+	i__1 = (int) (log(safmin / eps) / log(dmach("B")) / 2.);
+	safmn2 = powi(d__1, i__1);
 	safmx2 = 1. / safmn2;
     }
     if (*g == 0.) {
@@ -85,8 +87,8 @@
 	f1 = *f;
 	g1 = *g;
 /* Computing MAX */
-	d__1 = abs(f1), d__2 = abs(g1);
-	scale = max(d__1,d__2);
+	d__1 = fabs(f1), d__2 = fabs(g1);
+	scale = SUPERLU_MAX(d__1,d__2);
 	if (scale >= safmx2) {
 	    count = 0;
 L10:
@@ -94,8 +96,8 @@ L10:
 	    f1 *= safmn2;
 	    g1 *= safmn2;
 /* Computing MAX */
-	    d__1 = abs(f1), d__2 = abs(g1);
-	    scale = max(d__1,d__2);
+	    d__1 = fabs(f1), d__2 = fabs(g1);
+	    scale = SUPERLU_MAX(d__1,d__2);
 	    if (scale >= safmx2) {
 		goto L10;
 	    }
@@ -118,8 +120,8 @@ L30:
 	    f1 *= safmx2;
 	    g1 *= safmx2;
 /* Computing MAX */
-	    d__1 = abs(f1), d__2 = abs(g1);
-	    scale = max(d__1,d__2);
+	    d__1 = fabs(f1), d__2 = fabs(g1);
+	    scale = SUPERLU_MAX(d__1,d__2);
 	    if (scale <= safmn2) {
 		goto L30;
 	    }
@@ -144,7 +146,7 @@ L30:
 	    *cs = f1 / *r;
 	    *sn = g1 / *r;
 	}
-	if (abs(*f) > abs(*g) && *cs < 0.) {
+	if (fabs(*f) > fabs(*g) && *cs < 0.) {
 	    *cs = -(*cs);
 	    *sn = -(*sn);
 	    *r = -(*r);

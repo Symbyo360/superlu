@@ -1,6 +1,9 @@
-#include "f2c.h"
+#include "powi.h"
 
-/* Subroutine */ int slartg_slu(real *f, real *g, real *cs, real *sn, real *r)
+#include <math.h>
+#include <stdbool.h>
+
+/* Subroutine */ int slartg_slu(float *f, float *g, float *cs, float *sn, float *r)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -47,28 +50,27 @@
     ===================================================================== 
 */
     /* Initialized data */
-    static logical first = TRUE_;
+    static bool first = true;
     /* System generated locals */
-    integer i__1;
-    real r__1, r__2;
-    /* Builtin functions */
-    double log(doublereal), pow_ri(real *, integer *), sqrt(doublereal);
+    int i__1;
+    float r__1, r__2;
+
     /* Local variables */
-    static integer i;
-    static real scale;
-    static integer count;
-    static real f1, g1, safmn2, safmx2;
+    static int i;
+    static float scale;
+    static int count;
+    static float f1, g1, safmn2, safmx2;
     extern float smach(char *);
-    static real safmin, eps;
+    static float safmin, eps;
 
 
     if (first) {
-	first = FALSE_;
+	first = false;
 	safmin = smach("S");
 	eps = smach("E");
 	r__1 = smach("B");
-	i__1 = (integer) (log(safmin / eps) / log(smach("B")) / 2.f);
-	safmn2 = pow_ri(&r__1, &i__1);
+	i__1 = (int) (log(safmin / eps) / log(smach("B")) / 2.f);
+	safmn2 = powif(r__1, i__1);
 	safmx2 = 1.f / safmn2;
     }
     if (*g == 0.f) {
@@ -83,8 +85,8 @@
 	f1 = *f;
 	g1 = *g;
 /* Computing MAX */
-	r__1 = dabs(f1), r__2 = dabs(g1);
-	scale = dmax(r__1,r__2);
+	r__1 = fabs(f1), r__2 = fabs(g1);
+	scale = fmax(r__1,r__2);
 	if (scale >= safmx2) {
 	    count = 0;
 L10:
@@ -92,8 +94,8 @@ L10:
 	    f1 *= safmn2;
 	    g1 *= safmn2;
 /* Computing MAX */
-	    r__1 = dabs(f1), r__2 = dabs(g1);
-	    scale = dmax(r__1,r__2);
+	    r__1 = fabs(f1), r__2 = fabs(g1);
+	    scale = fmax(r__1,r__2);
 	    if (scale >= safmx2) {
 		goto L10;
 	    }
@@ -116,8 +118,8 @@ L30:
 	    f1 *= safmx2;
 	    g1 *= safmx2;
 /* Computing MAX */
-	    r__1 = dabs(f1), r__2 = dabs(g1);
-	    scale = dmax(r__1,r__2);
+	    r__1 = fabs(f1), r__2 = fabs(g1);
+	    scale = fmax(r__1,r__2);
 	    if (scale <= safmn2) {
 		goto L30;
 	    }
@@ -142,10 +144,10 @@ L30:
 	    *cs = f1 / *r;
 	    *sn = g1 / *r;
 	}
-	if (dabs(*f) > dabs(*g) && *cs < 0.f) {
-	    *cs = -(doublereal)(*cs);
-	    *sn = -(doublereal)(*sn);
-	    *r = -(doublereal)(*r);
+	if (fabs(*f) > fabs(*g) && *cs < 0.f) {
+	    *cs = -(double)(*cs);
+	    *sn = -(double)(*sn);
+	    *r = -(double)(*r);
 	}
     }
     return 0;

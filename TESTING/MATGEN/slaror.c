@@ -1,45 +1,40 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include <math.h>
 #include <string.h>
-#include "f2c.h"
 
 /* Table of constant values */
 
-static real c_b9 = 0.f;
-static real c_b10 = 1.f;
-static integer c__3 = 3;
-static integer c__1 = 1;
+static float c_b9 = 0.f;
+static float c_b10 = 1.f;
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int slaror_slu(char *side, char *init, integer *m, integer *n, 
-	real *a, integer *lda, integer *iseed, real *x, integer *info)
+/* Subroutine */ int slaror_slu(char *side, char *init, int *m, int *n,
+	float *a, int *lda, int *iseed, float *x, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2;
-    real r__1;
-
-    /* Builtin functions */
-    double r_sign(real *, real *);
+    int a_dim1, a_offset, i__1, i__2;
+    float r__1;
 
     /* Local variables */
-    static integer kbeg, jcol;
-    extern /* Subroutine */ int sger_(integer *, integer *, real *, real *, 
-	    integer *, real *, integer *, real *, integer *);
-    static integer irow;
-    extern real snrm2_(integer *, real *, integer *);
-    static integer j;
-    extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *), 
-	    sgemv_(char *, integer *, integer *, real *, real *, integer *, 
-	    real *, integer *, real *, real *, integer *);
-    static integer ixfrm, itype, nxfrm;
-    static real xnorm;
+    static int kbeg, jcol;
+    extern /* Subroutine */ int sger_(int *, int *, float *, float *,
+	    int *, float *, int *, float *, int *);
+    static int irow;
+    extern float snrm2_(int *, float *, int *);
+    static int j;
+    extern /* Subroutine */ int sscal_(int *, float *, float *, int *),
+	    sgemv_(char *, int *, int *, float *, float *, int *,
+	    float *, int *, float *, float *, int *);
+    static int ixfrm, itype, nxfrm;
+    static float xnorm;
     extern int input_error(char *, int *);
-    static real factor;
-    extern doublereal slarnd_slu(integer *, integer *);
-    extern /* Subroutine */ int slaset_slu(char *, integer *, integer *, real *, 
-	    real *, real *, integer *);
-    static real xnorms;
+    static float factor;
+    extern double slarnd_slu(int *, int *);
+    extern /* Subroutine */ int slaset_slu(char *, int *, int *, float *,
+	    float *, float *, int *);
+    static float xnorms;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -217,11 +212,11 @@ static integer c__1 = 1;
  X */
 
 	xnorm = snrm2_(&ixfrm, &x[kbeg], &c__1);
-	xnorms = r_sign(&xnorm, &x[kbeg]);
-	r__1 = -(doublereal)x[kbeg];
-	x[kbeg + nxfrm] = r_sign(&c_b10, &r__1);
+	xnorms = copysignf(xnorm, x[kbeg]);
+	r__1 = -(double)x[kbeg];
+	x[kbeg + nxfrm] = copysignf(c_b10, r__1);
 	factor = xnorms * (xnorms + x[kbeg]);
-	if (dabs(factor) < 1e-20f) {
+	if (fabs(factor) < 1e-20f) {
 	    *info = 1;
 	    input_error("SLAROR", info);
 	    return 0;
@@ -238,7 +233,7 @@ static integer c__1 = 1;
 
 	    sgemv_("T", &ixfrm, n, &c_b10, &a[kbeg + a_dim1], lda, &x[kbeg], &
 		    c__1, &c_b9, &x[(nxfrm << 1) + 1], &c__1);
-	    r__1 = -(doublereal)factor;
+	    r__1 = -(double)factor;
 	    sger_(&ixfrm, n, &r__1, &x[kbeg], &c__1, &x[(nxfrm << 1) + 1], &
 		    c__1, &a[kbeg + a_dim1], lda);
 
@@ -250,7 +245,7 @@ static integer c__1 = 1;
 
 	    sgemv_("N", m, &ixfrm, &c_b10, &a[kbeg * a_dim1 + 1], lda, &x[
 		    kbeg], &c__1, &c_b9, &x[(nxfrm << 1) + 1], &c__1);
-	    r__1 = -(doublereal)factor;
+	    r__1 = -(double)factor;
 	    sger_(m, &ixfrm, &r__1, &x[(nxfrm << 1) + 1], &c__1, &x[kbeg], &
 		    c__1, &a[kbeg * a_dim1 + 1], lda);
 
@@ -259,7 +254,7 @@ static integer c__1 = 1;
     }
 
     r__1 = slarnd_slu(&c__3, &iseed[1]);
-    x[nxfrm * 2] = r_sign(&c_b10, &r__1);
+    x[nxfrm * 2] = copysignf(c_b10, r__1);
 
 /*     Scale the matrix A by D. */
 

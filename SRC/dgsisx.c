@@ -13,10 +13,10 @@ at the top-level directory.
  * \brief Computes an approximate solutions of linear equations A*X=B or A'*X=B
  *
  * <pre>
- * -- SuperLU routine (version 4.2) --
+ * -- SuperLU routine (version 7.0.0) --
  * Lawrence Berkeley National Laboratory.
  * November, 2010
- * August, 2011
+ * August 2024
  * </pre>
  */
 #include "slu_ddefs.h"
@@ -105,7 +105,7 @@ at the top-level directory.
  *			      p = gamma * nnz(A(:,j)).
  *		DROP_AREA:    Variation of ILUTP, for j-th column, use
  *			      nnz(F(:,1:j)) / nnz(A(:,1:j)) to control memory.
- *		DROP_DYNAMIC: Modify the threshold tau during factorizaion:
+ *		DROP_DYNAMIC: Modify the threshold tau during factorization:
  *			      If nnz(L(:,1:j)) / nnz(A(:,1:j)) > gamma
  *				  tau_L(j) := MIN(tau_0, tau_L(j-1) * 2);
  *			      Otherwise
@@ -231,7 +231,7 @@ at the top-level directory.
  *            obtained from MC64.
  *            If MC64 fails, dgsequ() is used to equilibrate the system,
  *            and A is scaled as above, but no permutation is involved.
- *            On exit, A is restored to the orginal row numbering, so
+ *            On exit, A is restored to the original row numbering, so
  *            Dr*A*Dc is returned.
  *
  * perm_c  (input/output) int*
@@ -454,12 +454,12 @@ dgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
     }
 
     /* Test the input parameters */
-    if (options->Fact != DOFACT && options->Fact != SamePattern &&
-	options->Fact != SamePattern_SameRowPerm &&
-	options->Fact != FACTORED &&
-	options->Trans != NOTRANS && options->Trans != TRANS && 
-	options->Trans != CONJ &&
-	options->Equil != NO && options->Equil != YES)
+    if ( (options->Fact != DOFACT && options->Fact != SamePattern &&
+	  options->Fact != SamePattern_SameRowPerm &&
+	  options->Fact != FACTORED) ||
+	 (options->Trans != NOTRANS && options->Trans != TRANS && 
+	  options->Trans != CONJ) ||
+	 (options->Equil != NO && options->Equil != YES) )
 	*info = -1;
     else if ( A->nrow != A->ncol || A->nrow < 0 ||
 	      (A->Stype != SLU_NC && A->Stype != SLU_NR) ||

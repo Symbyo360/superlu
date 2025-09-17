@@ -1,9 +1,10 @@
 #include <string.h>
-#include "f2c.h"
+#include "../../SRC/slu_scomplex.h"
+#include "../../SRC/slu_sdefs.h"
 
-/* Subroutine */ int csymv_sluslu(char *uplo, integer *n, complex *alpha, complex *
-	a, integer *lda, complex *x, integer *incx, complex *beta, complex *y,
-	 integer *incy)
+/* Subroutine */ int csymv_sluslu(char *uplo, int *n, singlecomplex *alpha, singlecomplex *
+	a, int *lda, singlecomplex *x, int *incx, singlecomplex *beta, singlecomplex *y,
+	 int *incy)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -104,12 +105,12 @@
        Function Body */
     /* System generated locals */
 
-    complex q__1, q__2, q__3, q__4;
+    singlecomplex q__1, q__2, q__3, q__4;
     /* Local variables */
-    static integer info;
-    static complex temp1, temp2;
-    static integer i, j;
-    static integer ix, iy, jx, jy, kx, ky;
+    static int info;
+    static singlecomplex temp1, temp2;
+    static int i, j;
+    static int ix, iy, jx, jy, kx, ky;
     extern int input_error(char *, int *);
 
 #define X(I) x[(I)-1]
@@ -122,7 +123,7 @@
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	info = 5;
     } else if (*incx == 0) {
 	info = 7;

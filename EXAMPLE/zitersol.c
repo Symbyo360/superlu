@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -9,14 +9,15 @@ The source code is distributed under BSD license, see the file License.txt
 at the top-level directory.
 */
 
-/*! @file zitersol.c
- * \brief Example #1 showing how to use ILU to precondition GMRES
- *
- * <pre>
+/*
  * -- SuperLU routine (version 5.0) --
  * Lawrence Berkeley National Laboratory
  * November, 2010
  * August, 2011
+ */
+
+/*! \file
+ * \brief Example #1 showing how to use ILU to precondition GMRES
  *
  * This example shows that ILU is computed from the equilibrated matrix,
  * and the preconditioned GMRES is applied to the equilibrated system.
@@ -34,10 +35,9 @@ at the top-level directory.
  *   1) Apply preconditioner M^{-1} = Pc^T*U^{-1}*L^{-1}*Pr
  *   2) Matrix-vector multiplication: w = A1*v
  * 
- * </pre>
+ * \ingroup Example
  */
 
-#include <unistd.h>
 #include "slu_zdefs.h"
 
 superlu_options_t *GLOBAL_OPTIONS;
@@ -47,10 +47,16 @@ SuperMatrix *GLOBAL_A, *GLOBAL_L, *GLOBAL_U;
 SuperLUStat_t *GLOBAL_STAT;
 mem_usage_t   *GLOBAL_MEM_USAGE;
 
-void zpsolve(int n,
-                  doublecomplex x[], /* solution */
-                  doublecomplex y[]  /* right-hand side */
-)
+/*!
+ * \brief Performs zgsisx with original matrix A.
+ *
+ * See documentation of zgsisx for more details.
+ *
+ * \param [in] n     Dimension of matrices
+ * \param [out] x    Solution
+ * \param [in,out] y Right-hand side
+ */
+void zpsolve(int n, doublecomplex x[], doublecomplex y[])
 {
     SuperMatrix *A = GLOBAL_A, *L = GLOBAL_L, *U = GLOBAL_U;
     SuperLUStat_t *stat = GLOBAL_STAT;
@@ -59,7 +65,7 @@ void zpsolve(int n,
     double *R = GLOBAL_R, *C = GLOBAL_C;
     superlu_options_t *options = GLOBAL_OPTIONS;
     mem_usage_t  *mem_usage = GLOBAL_MEM_USAGE;
-    int info;
+    int_t info;
     static DNformat X, Y;
     static SuperMatrix XX = {SLU_DN, SLU_Z, SLU_GE, 1, 1, &X};
     static SuperMatrix YY = {SLU_DN, SLU_Z, SLU_GE, 1, 1, &Y};
@@ -80,6 +86,19 @@ void zpsolve(int n,
 #endif
 }
 
+
+/*!
+ * \brief Performs matrix-vector multiplication sp_zgemv with original matrix A.
+ *
+ * The operations is y := alpha*A*x + beta*y. See documentation of sp_zgemv
+ * for further details.
+ *
+ * \param [in] alpha Scalar factor for A*x
+ * \param [in] x Vector to multiply with A
+ * \param [in] beta Scalar factor for y
+ * \param [in,out] y Vector to add to to matrix-vector multiplication and
+ *                   storage for result.
+ */
 void zmatvec_mult(doublecomplex alpha, doublecomplex x[], doublecomplex beta, doublecomplex y[])
 {
     SuperMatrix *A = GLOBAL_A;
@@ -99,7 +118,6 @@ int main(int argc, char *argv[])
     extern int zfill_diag(int n, NCformat *Astore);
 
     char     equed[1] = {'B'};
-    yes_no_t equil;
     trans_t  trans;
     SuperMatrix A, L, U;
     SuperMatrix B, X;
@@ -109,15 +127,16 @@ int main(int argc, char *argv[])
     GlobalLU_t	   Glu; /* facilitate multiple factorizations with 
                            SamePattern_SameRowPerm                  */
     doublecomplex   *a;
-    int      *asub, *xa;
+    int_t    *asub, *xa;
     int      *etree;
     int      *perm_c; /* column permutation vector */
     int      *perm_r; /* row permutations from partial pivoting */
-    int      nrhs, ldx, lwork, info, m, n, nnz;
+    int      nrhs, ldx, m, n;
+    int_t    info, nnz, lwork;
     doublecomplex   *rhsb, *rhsx, *xact;
     doublecomplex   *work = NULL;
     double   *R, *C;
-    double   u, rpg, rcond;
+    double   rpg, rcond;
     doublecomplex zero = {0.0, 0.0};
     doublecomplex one = {1.0, 0.0};
     doublecomplex none = {-1.0, 0.0};
@@ -126,8 +145,6 @@ int main(int argc, char *argv[])
     SuperLUStat_t stat;
     FILE 	  *fp = stdin;
 
-    int restrt, iter, maxit, i;
-    double resid;
     doublecomplex *x, *b;
 
 #ifdef DEBUG
@@ -181,7 +198,7 @@ int main(int argc, char *argv[])
 		"-r -rb:\n\t[INPUT] is a Rutherford-Boeing format matrix.\n"
 		"-t -triplet:\n\t[INPUT] is a triplet format matrix.\n",
 		argv[0]);
-	return 0;
+        return EXIT_FAILURE;
     }
     else
     {
@@ -204,7 +221,7 @@ int main(int argc, char *argv[])
 		break;
 	    default:
 		printf("Unrecognized format.\n");
-		return 0;
+		return EXIT_FAILURE;
 	}
     }
 
@@ -212,7 +229,7 @@ int main(int argc, char *argv[])
                                 SLU_NC, SLU_Z, SLU_GE);
     Astore = A.Store;
     zfill_diag(n, Astore);
-    printf("Dimension %dx%d; # nonzeros %d\n", A.nrow, A.ncol, Astore->nnz);
+    printf("Dimension %dx%d; # nonzeros %d\n", (int)A.nrow, (int)A.ncol, (int)Astore->nnz);
     fflush(stdout);
 
     /* Generate the right-hand side */
@@ -225,9 +242,9 @@ int main(int argc, char *argv[])
     zGenXtrue(n, nrhs, xact, ldx);
     zFillRHS(trans, nrhs, xact, ldx, &A, &B);
 
-    if ( !(etree = intMalloc(n)) ) ABORT("Malloc fails for etree[].");
-    if ( !(perm_r = intMalloc(m)) ) ABORT("Malloc fails for perm_r[].");
-    if ( !(perm_c = intMalloc(n)) ) ABORT("Malloc fails for perm_c[].");
+    if ( !(etree = int32Malloc(n)) ) ABORT("Malloc fails for etree[].");
+    if ( !(perm_r = int32Malloc(m)) ) ABORT("Malloc fails for perm_r[].");
+    if ( !(perm_c = int32Malloc(n)) ) ABORT("Malloc fails for perm_c[].");
     if ( !(R = (double *) SUPERLU_MALLOC(A.nrow * sizeof(double))) )
 	ABORT("SUPERLU_MALLOC fails for R[].");
     if ( !(C = (double *) SUPERLU_MALLOC(A.ncol * sizeof(double))) )
@@ -251,12 +268,12 @@ int main(int argc, char *argv[])
     /* Set RHS for GMRES. */
     if (!(b = doublecomplexMalloc(m))) ABORT("Malloc fails for b[].");
     if (*equed == 'R' || *equed == 'B') {
-	for (i = 0; i < n; ++i) zd_mult(&b[i], &rhsb[i], R[i]);
+	for (int i = 0; i < n; ++i) zd_mult(&b[i], &rhsb[i], R[i]);
     } else {
-	for (i = 0; i < m; i++) b[i] = rhsb[i];
+	for (int i = 0; i < m; i++) b[i] = rhsb[i];
     }
 
-    printf("zgsisx(): info %d, equed %c\n", info, equed[0]);
+    printf("zgsisx(): info %lld, equed %c\n", (long long)info, equed[0]);
     if (info > 0 || rcond < 1e-8 || rpg > 1e8)
 	printf("WARNING: This preconditioner might be unstable.\n");
 
@@ -266,16 +283,16 @@ int main(int argc, char *argv[])
 	if ( options.ConditionNumber == YES )
 	    printf("Recip. condition number = %e\n", rcond);
     } else if ( info > 0 && lwork == -1 ) {
-	printf("** Estimated memory: %d bytes\n", info - n);
+	printf("** Estimated memory: %lld bytes\n", (long long)info - n);
     }
 
     Lstore = (SCformat *) L.Store;
     Ustore = (NCformat *) U.Store;
-    printf("n(A) = %d, nnz(A) = %d\n", n, Astore->nnz);
-    printf("No of nonzeros in factor L = %d\n", Lstore->nnz);
-    printf("No of nonzeros in factor U = %d\n", Ustore->nnz);
-    printf("No of nonzeros in L+U = %d\n", Lstore->nnz + Ustore->nnz - n);
-    printf("Fill ratio: nnz(F)/nnz(A) = %.3f\n",
+    printf("n(A) = %d, nnz(A) = %lld\n", n, (long long) Astore->nnz);
+    printf("No of nonzeros in factor L = %lld\n", (long long) Lstore->nnz);
+    printf("No of nonzeros in factor U = %lld\n", (long long) Ustore->nnz);
+    printf("No of nonzeros in L+U = %lld\n", (long long) Lstore->nnz + Ustore->nnz - n);
+    printf("Fill ratio: nnz(F)/nnz(A) = %.1f\n",
 	    ((double)(Lstore->nnz) + (double)(Ustore->nnz) - (double)n)
 	    / (double)Astore->nnz);
     printf("L\\U MB %.3f\ttotal MB needed %.3f\n",
@@ -300,22 +317,22 @@ int main(int argc, char *argv[])
     options.ConditionNumber = NO;
 
     /* Set the variables used by GMRES. */
-    restrt = SUPERLU_MIN(n / 3 + 1, 50);
-    maxit = 1000;
-    iter = maxit;
-    resid = 1e-8;
+    int restrt = SUPERLU_MIN(n / 3 + 1, 50);
+    int maxit = 1000;
+    int iter = maxit;
+    double resid = 1e-8;
     if (!(x = doublecomplexMalloc(n))) ABORT("Malloc fails for x[].");
 
     if (info <= n + 1)
     {
-	int i_1 = 1;
+	int i_1 = 1, nnz32;
 	double maxferr = 0.0, nrmA, nrmB, res, t;
         doublecomplex temp;
 	extern double dznrm2_(int *, doublecomplex [], int *);
 	extern void zaxpy_(int *, doublecomplex *, doublecomplex [], int *, doublecomplex [], int *);
 
 	/* Initial guess */
-	for (i = 0; i < n; i++) x[i] = zero;
+	for (int i = 0; i < n; i++) x[i] = zero;
 
 	t = SuperLU_timer_();
 
@@ -325,7 +342,8 @@ int main(int argc, char *argv[])
 	t = SuperLU_timer_() - t;
 
 	/* Output the result. */
-	nrmA = dznrm2_(&(Astore->nnz), (doublecomplex *)((DNformat *)A.Store)->nzval,
+	nnz32 = Astore->nnz;
+	nrmA = dznrm2_(&nnz32, (doublecomplex *)((NCformat *)A.Store)->nzval,
 		&i_1);
 	nrmB = dznrm2_(&m, b, &i_1);
 	sp_zgemv("N", none, &A, x, 1, one, b, 1);
@@ -344,9 +362,9 @@ int main(int argc, char *argv[])
 
 	/* Scale the solution back if equilibration was performed. */
 	if (*equed == 'C' || *equed == 'B') 
-	    for (i = 0; i < n; i++) zd_mult(&x[i], &x[i], C[i]);
+	    for (int i = 0; i < n; i++) zd_mult(&x[i], &x[i], C[i]);
 
-	for (i = 0; i < m; i++) {
+	for (int i = 0; i < m; i++) {
             z_sub(&temp, &x[i], &xact[i]);
             maxferr = SUPERLU_MAX(maxferr, z_abs1(&temp));
         }
@@ -383,5 +401,5 @@ int main(int argc, char *argv[])
     CHECK_MALLOC("Exit main()");
 #endif
 
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -1,17 +1,13 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
-
-doublereal dlaran_slu(integer *iseed)
+double dlaran_slu(int *iseed)
 {
     /* System generated locals */
-    doublereal ret_val;
+    double ret_val;
 
     /* Local variables */
-    static integer it1, it2, it3, it4;
+    static int it1, it2, it3, it4;
 
 
 /*  -- LAPACK auxiliary routine (version 2.0) --   
@@ -81,8 +77,8 @@ doublereal dlaran_slu(integer *iseed)
 
 /*     convert 48-bit integer to a real number in the interval (0,1) */
 
-    ret_val = ((doublereal) it1 + ((doublereal) it2 + ((doublereal) it3 + (
-	    doublereal) it4 * 2.44140625e-4) * 2.44140625e-4) * 2.44140625e-4)
+    ret_val = ((double) it1 + ((double) it2 + ((double) it3 + (
+	    double) it4 * 2.44140625e-4) * 2.44140625e-4) * 2.44140625e-4)
 	     * 2.44140625e-4;
     return ret_val;
 

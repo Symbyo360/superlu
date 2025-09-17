@@ -171,13 +171,6 @@ cgsrfs(trans_t trans, SuperMatrix *A, SuperMatrix *L, SuperMatrix *U,
     int      isave[3];
 
     extern int clacon2_(int *, singlecomplex *, singlecomplex *, float *, int *, int []);
-#ifdef _CRAY
-    extern int CCOPY(int *, singlecomplex *, int *, singlecomplex *, int *);
-    extern int CSAXPY(int *, singlecomplex *, singlecomplex *, int *, singlecomplex *, int *);
-#else
-    extern int ccopy_(int *, singlecomplex *, int *, singlecomplex *, int *);
-    extern int caxpy_(int *, singlecomplex *, singlecomplex *, int *, singlecomplex *, int *);
-#endif
 
     Astore = A->Store;
     Aval   = Astore->nzval;
@@ -227,7 +220,7 @@ cgsrfs(trans_t trans, SuperMatrix *A, SuperMatrix *L, SuperMatrix *U,
     colequ = strncmp(equed, "C", 1)==0 || strncmp(equed, "B", 1)==0;
     
     /* Allocate working space */
-    work = complexMalloc(2*A->nrow);
+    work = singlecomplexMalloc(2*A->nrow);
     rwork = (float *) SUPERLU_MALLOC( A->nrow * sizeof(float) );
     iwork = int32Malloc(A->nrow);
     if ( !work || !rwork || !iwork ) 

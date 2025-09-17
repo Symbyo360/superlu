@@ -1,21 +1,17 @@
+#include <math.h>
+
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
-
-doublereal slarnd_slu(integer *idist, integer *iseed)
+double slarnd_slu(int *idist, int *iseed)
 {
     /* System generated locals */
-    real ret_val;
-
-    /* Builtin functions */
-    double log(doublereal), sqrt(doublereal), cos(doublereal);
+    float ret_val;
 
     /* Local variables */
-    static real t1, t2;
-    extern doublereal dlaran_sluslu(integer *);
+    static float t1, t2;
+    extern double dlaran_sluslu(int *);
+    extern int input_error(char *, int *);
 
 
 /*  -- LAPACK auxiliary routine (version 2.0) --   
@@ -68,24 +64,30 @@ doublereal slarnd_slu(integer *idist, integer *iseed)
     /* Function Body */
     t1 = dlaran_sluslu(&iseed[1]);
 
-    if (*idist == 1) {
 
 /*        uniform (0,1) */
-
+    if (*idist == 1) {
 	ret_val = t1;
-    } else if (*idist == 2) {
 
 /*        uniform (-1,1) */
-
+    } else if (*idist == 2) {
 	ret_val = t1 * 2.f - 1.f;
-    } else if (*idist == 3) {
 
 /*        normal (0,1) */
+    } else if (*idist == 3) {
 
 	t2 = dlaran_sluslu(&iseed[1]);
 	ret_val = sqrt(log(t1) * -2.f) * cos(t2 * 
 		6.2831853071795864769252867663f);
     }
+
+/*        invalid input, *idist must be 1, 2, or 3  */
+    else {
+        int argument = 0;
+        input_error("slarnd", &argument);
+        ret_val = 0;
+    }
+
     return ret_val;
 
 /*     End of SLARND */

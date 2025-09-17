@@ -1,51 +1,45 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_ddefs.h"
+
+#include <math.h>
 
 /* Table of constant values */
 
-static integer c__3 = 3;
-static integer c__1 = 1;
-static doublereal c_b12 = 0.;
-static doublereal c_b19 = -1.;
-static doublereal c_b26 = 1.;
+static int c__3 = 3;
+static int c__1 = 1;
+static double c_b12 = 0.;
+static double c_b19 = -1.;
+static double c_b26 = 1.;
 
-/* Subroutine */ int dlagsy_slu(integer *n, integer *k, doublereal *d, 
-	doublereal *a, integer *lda, integer *iseed, doublereal *work, 
-	integer *info)
+/* Subroutine */ int dlagsy_slu(int *n, int *k, double *d,
+	double *a, int *lda, int *iseed, double *work,
+	int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    doublereal d__1;
-
-    /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    double d__1;
 
     /* Local variables */
-    extern /* Subroutine */ int dger_(integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    extern doublereal ddot_(integer *, doublereal *, integer *, doublereal *, 
-	    integer *), dnrm2_(integer *, doublereal *, integer *);
-    extern /* Subroutine */ int dsyr2_(char *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    static integer i, j;
-    static doublereal alpha;
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *), dgemv_(char *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *), daxpy_(integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *), dsymv_(char *, 
-	    integer *, doublereal *, doublereal *, integer *, doublereal *, 
-	    integer *, doublereal *, doublereal *, integer *);
-    static doublereal wa, wb, wn;
-    extern /* Subroutine */ int dlarnv_slu(integer *, integer *, integer *, doublereal *);
+    extern /* Subroutine */ int dger_(int *, int *, double *,
+	    double *, int *, double *, int *, double *,
+	    int *);
+    extern double ddot_(int *, double *, int *, double *,
+	    int *), dnrm2_(int *, double *, int *);
+    extern /* Subroutine */ int dsyr2_(char *, int *, double *,
+	    double *, int *, double *, int *, double *,
+	    int *);
+    static int i, j;
+    static double alpha;
+    extern /* Subroutine */ int dscal_(int *, double *, double *,
+	    int *),  dsymv_(char *,
+	    int *, double *, double *, int *, double *,
+	    int *, double *, double *, int *);
+    static double wa, wb, wn;
+    extern /* Subroutine */ int dlarnv_slu(int *, int *, int *, double *);
     extern int input_error(char *, int *);
-    static doublereal tau;
+    static double tau;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0)   
@@ -117,7 +111,7 @@ static doublereal c_b26 = 1.;
 	*info = -1;
     } else if (*k < 0 || *k > *n - 1) {
 	*info = -2;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -5;
     }
     if (*info < 0) {
@@ -153,7 +147,7 @@ static doublereal c_b26 = 1.;
 	dlarnv_slu(&c__3, &iseed[1], &i__1, &work[1]);
 	i__1 = *n - i + 1;
 	wn = dnrm2_(&i__1, &work[1], &c__1);
-	wa = d_sign(&wn, &work[1]);
+	wa = copysign(wn, work[1]);
 	if (wn == 0.) {
 	    tau = 0.;
 	} else {
@@ -199,7 +193,7 @@ static doublereal c_b26 = 1.;
 
 	i__2 = *n - *k - i + 1;
 	wn = dnrm2_(&i__2, &a[*k + i + i * a_dim1], &c__1);
-	wa = d_sign(&wn, &a[*k + i + i * a_dim1]);
+	wa = copysign(wn, a[*k + i + i * a_dim1]);
 	if (wn == 0.) {
 	    tau = 0.;
 	} else {

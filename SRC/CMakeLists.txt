@@ -1,11 +1,12 @@
 set(headers
-    ${CMAKE_CURRENT_BINARY_DIR}/superlu_config.h
     supermatrix.h
     slu_Cnames.h
     slu_dcomplex.h
     slu_scomplex.h
     slu_util.h
-    superlu_enum_consts.h)
+    superlu_enum_consts.h
+    ${CMAKE_CURRENT_BINARY_DIR}/superlu_config.h
+)
 
 set(sources
   superlu_timer.c
@@ -22,10 +23,9 @@ set(sources
   ilu_relax_snode.c
   ilu_heap_relax_snode.c
   mark_relax.c
+  mc64ad.c
   qselect.c
   input_error.c
-  dmach.c
-  smach.c
 )
 
 set_source_files_properties(superlu_timer.c PROPERTIES COMPILE_FLAGS -O0)
@@ -233,14 +233,8 @@ if(enable_complex16)
   )
 endif()
 
-if(NOT BLAS_FOUND)
-  list(APPEND sources ${CBLAS_SOURCES})
-  list(APPEND headers ${CBLAS_HEADERS})
-endif()
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(superlu STATIC ${sources})
-target_link_libraries(superlu PUBLIC ${BLAS_LIB})
+add_library(superlu ${sources})
+target_link_libraries(superlu PUBLIC ${BLAS_LIB} ${METIS_LIB})
 if (NOT WIN32)
   target_link_libraries(superlu PUBLIC m)
 endif ()
