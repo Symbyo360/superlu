@@ -52,25 +52,25 @@ cpruneL(
        const int  nseg,	     /* in */
        const int  *segrep,   /* in */
        const int  *repfnz,   /* in */
-       int        *xprune,   /* out */
+       int_t      *xprune,   /* out */
        GlobalLU_t *Glu       /* modified - global LU data structures */
        )
 {
 
-    complex     utemp;
+    singlecomplex     utemp;
     int        jsupno, irep, irep1, kmin, kmax, krow, movnum;
-    int        i, ktemp, minloc, maxloc;
+    int_t      i, ktemp, minloc, maxloc;
     int        do_prune; /* logical variable */
     int        *xsup, *supno;
-    int        *lsub, *xlsub;
-    complex     *lusup;
-    int        *xlusup;
+    int_t      *lsub, *xlsub;
+    singlecomplex     *lusup;
+    int_t      *xlusup;
 
     xsup       = Glu->xsup;
     supno      = Glu->supno;
     lsub       = Glu->lsub;
     xlsub      = Glu->xlsub;
-    lusup      = (complex *) Glu->lusup;
+    lusup      = (singlecomplex *) Glu->lusup;
     xlusup     = Glu->xlusup;
     
     /*
@@ -84,7 +84,7 @@ cpruneL(
 	do_prune = FALSE;
 
 	/* Don't prune with a zero U-segment */
- 	if ( repfnz[irep] == EMPTY )
+ 	if ( repfnz[irep] == SLU_EMPTY )
 		continue;
 
      	/* If a snode overlaps with the next panel, then the U-segment 
@@ -119,9 +119,9 @@ cpruneL(
 
 	        while ( kmin <= kmax ) {
 
-	    	    if ( perm_r[lsub[kmax]] == EMPTY ) 
+	    	    if ( perm_r[lsub[kmax]] == SLU_EMPTY ) 
 			kmax--;
-		    else if ( perm_r[lsub[kmin]] != EMPTY )
+		    else if ( perm_r[lsub[kmin]] != SLU_EMPTY )
 			kmin++;
 		    else { /* kmin below pivrow (not yet pivoted), and kmax
                             * above pivrow: interchange the two subscripts

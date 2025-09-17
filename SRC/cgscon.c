@@ -13,10 +13,11 @@ at the top-level directory.
  * \brief Estimates reciprocal of the condition number of a general matrix
  * 
  * <pre>
- * -- SuperLU routine (version 5.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * July 25, 2015
+ * August 2024
  *
  * Modified from lapack routines CGECON.
  * </pre> 
@@ -37,7 +38,7 @@ at the top-level directory.
  *
  *   CGSCON estimates the reciprocal of the condition number of a general 
  *   real matrix A, in either the 1-norm or the infinity-norm, using   
- *   the LU factorization computed by CGETRF.   *
+ *   the LU factorization computed by CGSTRF.   *
  *
  *   An estimate is obtained for norm(inv(A)), and the reciprocal of the   
  *   condition number is computed as   
@@ -87,13 +88,13 @@ cgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
 
 
     /* Local variables */
-    int    kase, kase1, onenrm, i;
+    int    kase, kase1, onenrm;
     float ainvnm;
-    complex *work;
+    singlecomplex *work;
     int    isave[3];
-    extern int crscl_(int *, complex *, complex *, int *);
+    extern int crscl_(int *, singlecomplex *, singlecomplex *, int *);
 
-    extern int clacon2_(int *, complex *, complex *, float *, int *, int []);
+    extern int clacon2_(int *, singlecomplex *, singlecomplex *, float *, int *, int []);
 
     
     /* Test the input parameters. */
@@ -107,8 +108,8 @@ cgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
              U->Stype != SLU_NC || U->Dtype != SLU_C || U->Mtype != SLU_TRU) 
 	*info = -3;
     if (*info != 0) {
-	i = -(*info);
-	input_error("cgscon", &i);
+	int ii = -(*info);
+	input_error("cgscon", &ii);
 	return;
     }
 
@@ -119,7 +120,7 @@ cgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
 	return;
     }
 
-    work = complexCalloc( 3*L->nrow );
+    work = singlecomplexCalloc( 3*L->nrow );
 
 
     if ( !work )
@@ -131,8 +132,10 @@ cgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
     else kase1 = 2;
     kase = 0;
 
+    int nrow = L->nrow;
+
     do {
-	clacon2_(&L->nrow, &work[L->nrow], &work[0], &ainvnm, &kase, isave);
+	clacon2_(&nrow, &work[L->nrow], &work[0], &ainvnm, &kase, isave);
 
 	if (kase == 0) break;
 

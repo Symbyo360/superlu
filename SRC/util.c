@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -8,10 +8,7 @@ All rights reserved.
 The source code is distributed under BSD license, see the file License.txt
 at the top-level directory.
 */
-/*! @file util.c
- * \brief Utility functions
- * 
- * <pre>
+/*
  * -- SuperLU routine (version 4.1) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
@@ -27,23 +24,29 @@ at the top-level directory.
  * Permission to modify the code and to distribute modified code is
  * granted, provided the above notices are retained, and a notice that
  * the code was modified is included with the above copyright notice.
- * </pre>
  */
-
+/*! \file
+ * \brief Utility functions
+ *
+ * \ingroup Common
+ */
 
 #include <math.h>
 #include "slu_ddefs.h"
 
-/*! \brief Global statistics variale
+/*! \brief Print message to error stream and exit program
+ *
+ * \param[in] mgs Message that is printed to error stream.
  */
-
-void superlu_abort_and_exit(char* msg)
+void superlu_abort_and_exit(const char* msg)
 {
     fprintf(stderr, "%s", msg);
     exit (-1);
 }
 
 /*! \brief Set the default values for the options argument.
+ *
+ * \param[in,out] options Options struct that is filled with default values.
  */
 void set_default_options(superlu_options_t *options)
 {
@@ -60,6 +63,8 @@ void set_default_options(superlu_options_t *options)
 }
 
 /*! \brief Set the default values for the options argument for ILU.
+ *
+ * \param[out] options Options struct that is filled with default values.
  */
 void ilu_set_default_options(superlu_options_t *options)
 {
@@ -67,7 +72,7 @@ void ilu_set_default_options(superlu_options_t *options)
 
     /* further options for incomplete factorization */
     options->DiagPivotThresh = 0.1;
-    options->RowPerm = LargeDiag_MC64;
+    options->RowPerm = NOROWPERM;
     options->ILU_DropRule = DROP_BASIC | DROP_AREA;
     options->ILU_DropTol = 1e-4;
     options->ILU_FillFactor = 10.0;
@@ -78,8 +83,10 @@ void ilu_set_default_options(superlu_options_t *options)
 }
 
 /*! \brief Print the options setting.
+ *
+ * \param[in] options Options struct that is printed.
  */
-void print_options(superlu_options_t *options)
+void print_options(const superlu_options_t *options)
 {
     printf(".. options:\n");
     printf("\tFact\t %8d\n", options->Fact);
@@ -95,8 +102,10 @@ void print_options(superlu_options_t *options)
 }
 
 /*! \brief Print the options setting.
+ *
+ * \param[in] options Options struct that is printed.
  */
-void print_ilu_options(superlu_options_t *options)
+void print_ilu_options(const superlu_options_t *options)
 {
     printf(".. ILU options:\n");
     printf("\tDiagPivotThresh\t%6.2e\n", options->DiagPivotThresh);
@@ -109,13 +118,24 @@ void print_ilu_options(superlu_options_t *options)
     printf("..\n");
 }
 
-/*! \brief Deallocate the structure pointing to the actual storage of the matrix. */
+/*! \brief Deallocate SuperMatrix
+ *
+ * Deallocate the structure pointing to the actual storage of the matrix.
+ *
+ * \param[in,out] A Deallocate all memory of this SuperMatrix.
+ */
 void
 Destroy_SuperMatrix_Store(SuperMatrix *A)
 {
     SUPERLU_FREE ( A->Store );
 }
 
+/*! \brief Deallocate SuperMatrix of type NC
+ *
+ * Deallocate the structure pointing to the actual storage of the matrix.
+ *
+ * \param[in,out] A Deallocate all memory of this SuperMatrix of type NC.
+ */
 void
 Destroy_CompCol_Matrix(SuperMatrix *A)
 {
@@ -125,6 +145,12 @@ Destroy_CompCol_Matrix(SuperMatrix *A)
     SUPERLU_FREE( A->Store );
 }
 
+/*! \brief Deallocate SuperMatrix of type NR
+ *
+ * Deallocate the structure pointing to the actual storage of the matrix.
+ *
+ * \param[in,out] A Deallocate all memory of this SuperMatrix of type NR.
+ */
 void
 Destroy_CompRow_Matrix(SuperMatrix *A)
 {
@@ -134,6 +160,12 @@ Destroy_CompRow_Matrix(SuperMatrix *A)
     SUPERLU_FREE( A->Store );
 }
 
+/*! \brief Deallocate SuperMatrix of type SC
+ *
+ * Deallocate the structure pointing to the actual storage of the matrix.
+ *
+ * \param[in,out] A Deallocate all memory of this SuperMatrix of type SC.
+ */
 void
 Destroy_SuperNode_Matrix(SuperMatrix *A)
 {
@@ -146,7 +178,12 @@ Destroy_SuperNode_Matrix(SuperMatrix *A)
     SUPERLU_FREE ( A->Store );
 }
 
-/*! \brief A is of type Stype==NCP */
+/*! \brief Deallocate SuperMatrix of type NCP
+ *
+ * Deallocate the structure pointing to the actual storage of the matrix.
+ *
+ * \param[in,out] A Deallocate all memory of this SuperMatrix of type NCP.
+ */
 void
 Destroy_CompCol_Permuted(SuperMatrix *A)
 {
@@ -155,7 +192,12 @@ Destroy_CompCol_Permuted(SuperMatrix *A)
     SUPERLU_FREE ( A->Store );
 }
 
-/*! \brief A is of type Stype==DN */
+/*! \brief Deallocate SuperMatrix of type DN
+ *
+ * Deallocate the structure pointing to the actual storage of the matrix.
+ *
+ * \param[in,out] A Deallocate all memory of this SuperMatrix of type DN.
+ */
 void
 Destroy_Dense_Matrix(SuperMatrix *A)
 {
@@ -164,34 +206,36 @@ Destroy_Dense_Matrix(SuperMatrix *A)
     SUPERLU_FREE ( A->Store );
 }
 
-/*! \brief Reset repfnz[] for the current column 
+/*! \brief Reset repfnz[] for the current column
  */
 void
 resetrep_col (const int nseg, const int *segrep, int *repfnz)
 {
-    int i, irep;
+    int_t i, irep;
     
     for (i = 0; i < nseg; i++) {
 	irep = segrep[i];
-	repfnz[irep] = EMPTY;
+	repfnz[irep] = SLU_EMPTY;
     }
 }
 
-
-/*! \brief Count the total number of nonzeros in factors L and U,  and in the symmetrically reduced L. 
+/*! \brief Count the total number of nonzeros in factors L and U, and in the symmetrically reduced L.
  */
 void
-countnz(const int n, int *xprune, int *nnzL, int *nnzU, GlobalLU_t *Glu)
+countnz(const int n, int_t *xprune, int_t *nnzL, int_t *nnzU, GlobalLU_t *Glu)
 {
     int          nsuper, fsupc, i, j;
-    int          nnzL0, jlen, irep;
-    int          *xsup, *xlsub;
+    int_t        jlen;
+#if ( DEBUGlevel>=1 )
+    int_t        irep = 0, nnzL0 = 0;
+#endif
+    int          *xsup;
+    int_t        *xlsub;
 
     xsup   = Glu->xsup;
     xlsub  = Glu->xlsub;
     *nnzL  = 0;
     *nnzU  = (Glu->xusub)[n];
-    nnzL0  = 0;
     nsuper = (Glu->supno)[n];
 
     if ( n <= 0 ) return;
@@ -208,21 +252,26 @@ countnz(const int n, int *xprune, int *nnzL, int *nnzU, GlobalLU_t *Glu)
 	    *nnzU += j - fsupc + 1;
 	    jlen--;
 	}
-	irep = xsup[i+1] - 1;
-	nnzL0 += xprune[irep] - xlsub[irep];
+#if ( DEBUGlevel>=1 )
+        irep = xsup[i+1] - 1;
+        nnzL0 += xprune[irep] - xlsub[irep];
+#endif
     }
-    
-    /* printf("\tNo of nonzeros in symm-reduced L = %d\n", nnzL0);*/
+
+#if ( DEBUGlevel>=1 )
+    printf("\tNo of nonzeros in symm-reduced L = %lld\n", (long long) nnzL0); fflush(stdout);
+#endif
 }
 
 /*! \brief Count the total number of nonzeros in factors L and U.
  */
 void
-ilu_countnz(const int n, int *nnzL, int *nnzU, GlobalLU_t *Glu)
+ilu_countnz(const int n, int_t *nnzL, int_t *nnzU, GlobalLU_t *Glu)
 {
     int          nsuper, fsupc, i, j;
     int          jlen;
-    int          *xsup, *xlsub;
+    int          *xsup;
+    int_t        *xlsub;
 
     xsup   = Glu->xsup;
     xlsub  = Glu->xlsub;
@@ -248,14 +297,18 @@ ilu_countnz(const int n, int *nnzL, int *nnzU, GlobalLU_t *Glu)
     }
 }
 
-
-/*! \brief Fix up the data storage lsub for L-subscripts. It removes the subscript sets for structural pruning,	and applies permuation to the remaining subscripts.
+/*! \brief Fix up the data storage lsub for L-subscripts.
+ *
+ * It removes the subscript sets for structural pruning,
+ * and applies permutation to the remaining subscripts.
  */
 void
 fixupL(const int n, const int *perm_r, GlobalLU_t *Glu)
 {
-    register int nsuper, fsupc, nextl, i, j, k, jstrt;
-    int          *xsup, *lsub, *xlsub;
+    int nsuper, fsupc, i, k;
+    int_t nextl, j, jstrt;
+    int   *xsup;
+    int_t *lsub, *xlsub;
 
     if ( n <= 1 ) return;
 
@@ -284,11 +337,10 @@ fixupL(const int n, const int *perm_r, GlobalLU_t *Glu)
     xlsub[n] = nextl;
 }
 
-
 /*! \brief Diagnostic print of segment info after panel_dfs().
  */
-void print_panel_seg(int n, int w, int jcol, int nseg, 
-		     int *segrep, int *repfnz)
+void print_panel_seg(int n, int w, int jcol, int nseg,
+                     const int *segrep, const int *repfnz)
 {
     int j, k;
     
@@ -301,7 +353,10 @@ void print_panel_seg(int n, int w, int jcol, int nseg,
 
 }
 
-
+/*! \brief Initialize SuperLU stat
+ *
+ * \param[in,out] stat SuperLU stat that is initialized.
+ */
 void
 StatInit(SuperLUStat_t *stat)
 {
@@ -310,7 +365,7 @@ StatInit(SuperLUStat_t *stat)
     panel_size = sp_ienv(1);
     relax = sp_ienv(2);
     w = SUPERLU_MAX(panel_size, relax);
-    stat->panel_histo = intCalloc(w+1);
+    stat->panel_histo = int32Calloc(w+1);
     stat->utime = (double *) SUPERLU_MALLOC(NPHASES * sizeof(double));
     if (!stat->utime) ABORT("SUPERLU_MALLOC fails for stat->utime");
     stat->ops = (flops_t *) SUPERLU_MALLOC(NPHASES * sizeof(flops_t));
@@ -335,7 +390,12 @@ StatInit(SuperLUStat_t *stat)
 #endif
 }
 
-
+/*! \brief Display SuperLU stat
+ *
+ * Print content of SuperLU stat to output.
+ *
+ * \param[in] stat Display this SuperLU stat
+ */
 void
 StatPrint(SuperLUStat_t *stat)
 {
@@ -358,7 +418,12 @@ StatPrint(SuperLUStat_t *stat)
 
 }
 
-
+/*! \brief Deallocate SuperLU stat
+ *
+ * Deallocate the structure pointing to the actual storage of SuperLU stat.
+ *
+ * \param[in,out] stat Deallocate all memory of this SuperLU stat
+ */
 void
 StatFree(SuperLUStat_t *stat)
 {
@@ -367,24 +432,39 @@ StatFree(SuperLUStat_t *stat)
     SUPERLU_FREE(stat->ops);
 }
 
-
+/*! \brief Get operations for LU factorization
+ *
+ * Read out number of operations (ops) needed for LU factorization.
+ *
+ * \param[in] stat SuperLU stat used to read out the opts.
+ *
+ * \return Number of operations needed for LU factorization.
+ */
 flops_t
 LUFactFlops(SuperLUStat_t *stat)
 {
     return (stat->ops[FACT]);
 }
 
+/*! \brief Get operations for LU solve
+ *
+ * Read out number of operations (ops) needed for LU solve.
+ *
+ * \param[in] stat SuperLU stat used to read out the opts.
+ *
+ * \return Number of operations needed for LU solve.
+ */
 flops_t
 LUSolveFlops(SuperLUStat_t *stat)
 {
     return (stat->ops[SOLVE]);
 }
 
-
-
-
-
 /*! \brief Fills an integer array with a given value.
+ *
+ * \param[in,out] a Integer array that is filled.
+ * \param[in]     alen Length of integer array \a a.
+ * \param[in]     ival Value to be filled in every element of \a a.
  */
 void ifill(int *a, int alen, int ival)
 {
@@ -392,13 +472,11 @@ void ifill(int *a, int alen, int ival)
     for (i = 0; i < alen; i++) a[i] = ival;
 }
 
-
-
 /*! \brief Get the statistics of the supernodes 
  */
 #define NBUCKS 10
 
-void super_stats(int nsuper, int *xsup)
+void super_stats(int nsuper, const int *xsup)
 {
     register int nsup1 = 0;
     int    i, isize, whichb, bl, bh;
@@ -434,7 +512,6 @@ void super_stats(int nsuper, int *xsup)
 
 }
 
-
 float SpaSize(int n, int np, float sum_npw)
 {
     return (sum_npw*8 + np*8 + n*4)/1024.;
@@ -442,30 +519,33 @@ float SpaSize(int n, int np, float sum_npw)
 
 float DenseSize(int n, float sum_nw)
 {
-    return (sum_nw*8 + n*8)/1024.;;
+    return (sum_nw*8 + n*8)/1024.;
 }
 
-
-
-/*! \brief Check whether repfnz[] == EMPTY after reset.
+/*! \brief Check whether repfnz[] == SLU_EMPTY after reset.
  */
-void check_repfnz(int n, int w, int jcol, int *repfnz)
+void check_repfnz(int n, int w, int jcol, const int *repfnz)
 {
     int jj, k;
 
     for (jj = jcol; jj < jcol+w; jj++) 
 	for (k = 0; k < n; k++)
-	    if ( repfnz[(jj-jcol)*n + k] != EMPTY ) {
+	    if ( repfnz[(jj-jcol)*n + k] != SLU_EMPTY ) {
 		fprintf(stderr, "col %d, repfnz_col[%d] = %d\n", jj,
 			k, repfnz[(jj-jcol)*n + k]);
 		ABORT("check_repfnz");
 	    }
 }
 
-
-/*! \brief Print a summary of the testing results. */
+/*! \brief Print a summary of the testing results.
+ *
+ * \param[in] type Array with three chars indicating the type for that the tests were run like "CGE" or "DGE".
+ * \param[in] nfail Number of failed tests.
+ * \param[in] nrun Number of tests run.
+ * \param[in] nerrs Number of error messages recorded.
+ */
 void
-PrintSumm(char *type, int nfail, int nrun, int nerrs)
+PrintSumm(const char *type, int nfail, int nrun, int nerrs)
 {
     if ( nfail > 0 )
 	printf("%3s driver: %d out of %d tests failed to pass the threshold\n",
@@ -477,16 +557,29 @@ PrintSumm(char *type, int nfail, int nrun, int nerrs)
 	printf("%6d error messages recorded\n", nerrs);
 }
 
-
-int print_int_vec(char *what, int n, int *vec)
+/*! \brief Print content of int array
+ *
+ * \param[in] what Vector name that is printed first.
+ * \param[in] n Number of elements in array.
+ * \param[in] vec Array of ints to be printed
+ */
+void print_int_vec(const char *what, int n, const int *vec)
 {
     int i;
     printf("%s\n", what);
     for (i = 0; i < n; ++i) printf("%d\t%d\n", i, vec[i]);
-    return 0;
 }
 
-int slu_PrintInt10(char *name, int len, int *x)
+/*! \brief Print content of int array with index numbers after every tenth row
+ *
+ * Print all elements of an int array. After ten rows the index is printed to
+ * make it more readable for humans.
+ *
+ * \param[in] name Vector name that is printed first.
+ * \param[in] len Number of elements in array.
+ * \param[in] x Array of ints to be printed.
+ */
+void slu_PrintInt10(const char *name, int len, const int *x)
 {
     register int i;
     
@@ -497,7 +590,31 @@ int slu_PrintInt10(char *name, int len, int *x)
 	printf("%6d", x[i]);
     }
     printf("\n");
-    return 0;
 }
 
+/*! \brief Validity check of a permutation
+ *
+ * \param[in] what String to be printed as part of displayed text for success or error.
+ * \param[in] n Number of elements in permutation \a perm.
+ * \param[in] perm Array describing the permutation.
+ */
+void check_perm(const char *what, int n, const int *perm)
+{
+    register int i;
+    int          *marker;
+    /*marker = (int *) calloc(n, sizeof(int));*/
+    marker = int32Malloc(n);
+    for (i = 0; i < n; ++i) marker[i] = 0;
 
+    for (i = 0; i < n; ++i) {
+	if ( marker[perm[i]] == 1 || perm[i] >= n ) {
+	    printf("%s: Not a valid PERM[%d] = %d\n", what, i, perm[i]);
+	    ABORT("check_perm");
+	} else {
+	    marker[perm[i]] = 1;
+	}
+    }
+
+    SUPERLU_FREE(marker);
+    printf("check_perm: %s: n %d\n", what, n);
+}

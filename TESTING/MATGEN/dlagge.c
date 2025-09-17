@@ -1,42 +1,36 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_ddefs.h"
+
+#include <math.h>
 
 /* Table of constant values */
 
-static integer c__3 = 3;
-static integer c__1 = 1;
-static doublereal c_b11 = 1.;
-static doublereal c_b13 = 0.;
+static int c__3 = 3;
+static int c__1 = 1;
+static double c_b11 = 1.;
+static double c_b13 = 0.;
 
-/* Subroutine */ int dlagge_slu(integer *m, integer *n, integer *kl, integer *ku,
-	 doublereal *d, doublereal *a, integer *lda, integer *iseed, 
-	doublereal *work, integer *info)
+/* Subroutine */ int dlagge_slu(int *m, int *n, int *kl, int *ku,
+	 double *d, double *a, int *lda, int *iseed,
+	double *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    doublereal d__1;
-
-    /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    double d__1;
 
     /* Local variables */
-    extern /* Subroutine */ int dger_(integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    static integer i, j;
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *), dgemv_(char *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *);
-    static doublereal wa, wb, wn;
-    extern /* Subroutine */ int dlarnv_slu(integer *, integer *, integer *, doublereal *);
+    extern /* Subroutine */ int dger_(int *, int *, double *,
+	    double *, int *, double *, int *, double *,
+	    int *);
+    extern double dnrm2_(int *, double *, int *);
+    static int i, j;
+    extern /* Subroutine */ int dscal_(int *, double *, double *, int *);
+    static double wa, wb, wn;
+    extern /* Subroutine */ int dlarnv_slu(int *, int *, int *, double *);
     extern int input_error(char *, int *);
-    static doublereal tau;
+    static double tau;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0)   
@@ -117,7 +111,7 @@ static doublereal c_b13 = 0.;
 	*info = -3;
     } else if (*ku < 0 || *ku > *n - 1) {
 	*info = -4;
-    } else if (*lda < max(1,*m)) {
+    } else if (*lda < SUPERLU_MAX(1,*m)) {
 	*info = -7;
     }
     if (*info < 0) {
@@ -137,7 +131,7 @@ static doublereal c_b13 = 0.;
 	}
 /* L20: */
     }
-    i__1 = min(*m,*n);
+    i__1 = SUPERLU_MIN(*m,*n);
     for (i = 1; i <= i__1; ++i) {
 	a[i + i * a_dim1] = d[i];
 /* L30: */
@@ -145,7 +139,7 @@ static doublereal c_b13 = 0.;
 
 /*     pre- and post-multiply A by random orthogonal matrices */
 
-    for (i = min(*m,*n); i >= 1; --i) {
+    for (i = SUPERLU_MIN(*m,*n); i >= 1; --i) {
 	if (i < *m) {
 
 /*           generate random reflection */
@@ -154,7 +148,7 @@ static doublereal c_b13 = 0.;
 	    dlarnv_slu(&c__3, &iseed[1], &i__1, &work[1]);
 	    i__1 = *m - i + 1;
 	    wn = dnrm2_(&i__1, &work[1], &c__1);
-	    wa = d_sign(&wn, &work[1]);
+	    wa = copysign(wn, work[1]);
 	    if (wn == 0.) {
 		tau = 0.;
 	    } else {
@@ -187,7 +181,7 @@ t */
 	    dlarnv_slu(&c__3, &iseed[1], &i__1, &work[1]);
 	    i__1 = *n - i + 1;
 	    wn = dnrm2_(&i__1, &work[1], &c__1);
-	    wa = d_sign(&wn, &work[1]);
+	    wa = copysign(wn, work[1]);
 	    if (wn == 0.) {
 		tau = 0.;
 	    } else {
@@ -220,7 +214,7 @@ ht */
 
    Computing MAX */
     i__2 = *m - 1 - *kl, i__3 = *n - 1 - *ku;
-    i__1 = max(i__2,i__3);
+    i__1 = SUPERLU_MAX(i__2,i__3);
     for (i = 1; i <= i__1; ++i) {
 	if (*kl <= *ku) {
 
@@ -229,14 +223,14 @@ L = 0)
 
    Computing MIN */
 	    i__2 = *m - 1 - *kl;
-	    if (i <= min(i__2,*n)) {
+	    if (i <= SUPERLU_MIN(i__2,*n)) {
 
 /*              generate reflection to annihilate A(kl+i+1:m,i
 ) */
 
 		i__2 = *m - *kl - i + 1;
 		wn = dnrm2_(&i__2, &a[*kl + i + i * a_dim1], &c__1);
-		wa = d_sign(&wn, &a[*kl + i + i * a_dim1]);
+		wa = copysign(wn, a[*kl + i + i * a_dim1]);
 		if (wn == 0.) {
 		    tau = 0.;
 		} else {
@@ -266,14 +260,14 @@ eft */
 
 /* Computing MIN */
 	    i__2 = *n - 1 - *ku;
-	    if (i <= min(i__2,*m)) {
+	    if (i <= SUPERLU_MIN(i__2,*m)) {
 
 /*              generate reflection to annihilate A(i,ku+i+1:n
 ) */
 
 		i__2 = *n - *ku - i + 1;
 		wn = dnrm2_(&i__2, &a[i + (*ku + i) * a_dim1], lda);
-		wa = d_sign(&wn, &a[i + (*ku + i) * a_dim1]);
+		wa = copysign(wn, a[i + (*ku + i) * a_dim1]);
 		if (wn == 0.) {
 		    tau = 0.;
 		} else {
@@ -308,14 +302,14 @@ ight */
 
    Computing MIN */
 	    i__2 = *n - 1 - *ku;
-	    if (i <= min(i__2,*m)) {
+	    if (i <= SUPERLU_MIN(i__2,*m)) {
 
 /*              generate reflection to annihilate A(i,ku+i+1:n
 ) */
 
 		i__2 = *n - *ku - i + 1;
 		wn = dnrm2_(&i__2, &a[i + (*ku + i) * a_dim1], lda);
-		wa = d_sign(&wn, &a[i + (*ku + i) * a_dim1]);
+		wa = copysign(wn, a[i + (*ku + i) * a_dim1]);
 		if (wn == 0.) {
 		    tau = 0.;
 		} else {
@@ -345,14 +339,14 @@ ight */
 
 /* Computing MIN */
 	    i__2 = *m - 1 - *kl;
-	    if (i <= min(i__2,*n)) {
+	    if (i <= SUPERLU_MIN(i__2,*n)) {
 
 /*              generate reflection to annihilate A(kl+i+1:m,i
 ) */
 
 		i__2 = *m - *kl - i + 1;
 		wn = dnrm2_(&i__2, &a[*kl + i + i * a_dim1], &c__1);
-		wa = d_sign(&wn, &a[*kl + i + i * a_dim1]);
+		wa = copysign(wn, a[*kl + i + i * a_dim1]);
 		if (wn == 0.) {
 		    tau = 0.;
 		} else {

@@ -10,11 +10,12 @@ at the top-level directory.
 */
 
 /*! @file 
- * \brief Read a matrix stored in Harwell-Boeing format.
+ * \brief Read a matrix stored in Matrix Market format.
  * Contributed by Francois-Henry Rouet.
  *
  */
 #include <ctype.h>
+#include <stdio.h>
 #include "slu_zdefs.h"
 
 #undef EXPAND_SYM
@@ -32,18 +33,20 @@ at the top-level directory.
  */
 
 void
-zreadMM(FILE *fp, int *m, int *n, int *nonz,
-	    doublecomplex **nzval, int **rowind, int **colptr)
+zreadMM(FILE *fp, int *m, int *n, int_t *nonz,
+	    doublecomplex **nzval, int_t **rowind, int_t **colptr)
 {
     int_t    j, k, jsize, nnz, nz, new_nonz;
     doublecomplex *a, *val;
-    int_t    *asub, *xa, *row, *col;
-    int_t    zero_base = 0;
+    int_t    *asub, *xa;
+    int      *row, *col;
+    int    zero_base = 0;
     char *p, line[512], banner[64], mtx[64], crd[64], arith[64], sym[64];
     int expand;
+    char *cs;
 
     /* 	File format:
-     *    %%MatrixMarket matrix coordinate real general/symmetric/...
+     *    %%MatrixMarket matrix coordinate complex general/symmetric/...
      *    % ...
      *    % (optional comments)
      *    % ...
@@ -52,7 +55,7 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
      */
 
      /* 1/ read header */ 
-     fgets(line,512,fp);
+     cs = fgets(line,512,fp);
      for (p=line; *p!='\0'; *p=tolower(*p),p++);
 
      if (sscanf(line, "%s %s %s %s %s", banner, mtx, crd, arith, sym) != 5) {
@@ -75,9 +78,9 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
        exit(-1);
      }
 
-     if(strcmp(arith,"real")) {
-       if(!strcmp(arith,"complex")) {
-         printf("Complex matrix; use zreadMM instead!\n");
+     if(strcmp(arith,"complex")) {
+       if(!strcmp(arith,"real")) {
+         printf("Complex matrix; use dreadMM instead!\n");
          exit(-1);
        }
        else if(!strcmp(arith, "pattern")) {
@@ -90,20 +93,20 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
        }
      }
 
-     if(strcmp(sym,"general")) {
+     if ( (!strcmp(sym,"symmetric")) || (!strcmp(sym,"hermitian")) ) {
        printf("Symmetric matrix: will be expanded\n");
        expand=1;
      } else expand=0;
 
      /* 2/ Skip comments */
      while(banner[0]=='%') {
-       fgets(line,512,fp);
+       cs = fgets(line,512,fp);
        sscanf(line,"%s",banner);
      }
 
      /* 3/ Read n and nnz */
 #ifdef _LONGINT
-    sscanf(line, "%ld%ld%ld",m, n, nonz);
+    sscanf(line, "%d%d%lld",m, n, nonz);
 #else
     sscanf(line, "%d%d%d",m, n, nonz);
 #endif
@@ -113,10 +116,12 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
       exit(-1);
    }
 
-    if(expand)
-      new_nonz = 2 * *nonz - *n;
-    else
+    if (expand) {
+      new_nonz = 2 * *nonz; /* upper bound, accommodate hard zeros on the diagonal */
+      printf("new_nonz upper bound symmetric expansion:\t%lld\n", (long long) new_nonz);
+    } else {
       new_nonz = *nonz;
+    }
 
     *m = *n;
     printf("m %lld, n %lld, nonz %lld\n", (long long) *m, (long long) *n, (long long) *nonz);
@@ -125,22 +130,18 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
     asub = *rowind;
     xa   = *colptr;
 
-    if ( !(val = (doublecomplex *) SUPERLU_MALLOC(new_nonz * sizeof(double))) )
+    if ( !(val = doublecomplexMalloc(new_nonz)) )
         ABORT("Malloc fails for val[]");
-    if ( !(row = (int_t *) SUPERLU_MALLOC(new_nonz * sizeof(int_t))) )
+    if ( !(row = int32Malloc(new_nonz)) )
         ABORT("Malloc fails for row[]");
-    if ( !(col = (int_t *) SUPERLU_MALLOC(new_nonz * sizeof(int_t))) )
+    if ( !(col = int32Malloc(new_nonz)) )
         ABORT("Malloc fails for col[]");
 
     for (j = 0; j < *n; ++j) xa[j] = 0;
 
     /* 4/ Read triplets of values */
     for (nnz = 0, nz = 0; nnz < *nonz; ++nnz) {
-#ifdef _LONGINT
-	fscanf(fp, "%lld%lld%lf%lf\n", &row[nz], &col[nz], &val[nz].r, &val[nz].i);
-#else
 	fscanf(fp, "%d%d%lf%lf\n", &row[nz], &col[nz], &val[nz].r, &val[nz].i);
-#endif
 
 	if ( nnz == 0 ) { /* first nonzero */
 	    if ( row[0] == 0 || col[0] == 0 ) {
@@ -160,11 +161,11 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
 	if (row[nz] < 0 || row[nz] >= *m || col[nz] < 0 || col[nz] >= *n
 	    /*|| val[nz] == 0.*/) {
 	    fprintf(stderr, "nz %d, (%d, %d) = {%e,%e} out of bound, removed\n",
-          	    nz, row[nz], col[nz], val[nz].r, val[nz].i);
+          	    (int) nz, row[nz], col[nz], val[nz].r, val[nz].i);
 	    exit(-1);
 	} else {
 	    ++xa[col[nz]];
-            if(expand) {
+            if (expand) {
 	        if ( row[nz] != col[nz] ) { /* Excluding diagonal */
 	          ++nz;
 	          row[nz] = col[nz-1];
@@ -178,10 +179,9 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
     }
 
     *nonz = nz;
-    if(expand) {
-      printf("new_nonz after symmetric expansion:\t%d\n", *nonz);
+    if (expand) {
+      printf("new_nonz after symmetric expansion:\t%lld\n", (long long)*nonz);
     }
-    
 
     /* Initialize the array of column pointers */
     k = 0;
@@ -226,9 +226,9 @@ zreadMM(FILE *fp, int *m, int *n, int *nonz,
 static void zreadrhs(int m, doublecomplex *b)
 {
     FILE *fp = fopen("b.dat", "r");
-    int i;
 
-    if (!fp) {
+    int i;
+    if ( !fp ) {
         fprintf(stderr, "zreadrhs: file does not exist\n");
 	exit(-1);
     }

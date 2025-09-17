@@ -91,7 +91,7 @@ at the top-level directory.
 
 void
 dgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
-        int *perm_c, int *perm_r, SuperMatrix *B,
+        const int *perm_c, const int *perm_r, SuperMatrix *B,
         SuperLUStat_t *stat, int *info)
 {
 
@@ -107,11 +107,12 @@ dgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
     SCformat *Lstore;
     NCformat *Ustore;
     double   *Lval, *Uval;
-    int      fsupc, nrow, nsupr, nsupc, luptr, istart, irow;
-    int      i, j, k, iptr, jcol, n, ldb, nrhs;
+    int      fsupc, nrow, nsupr, nsupc, irow;
+    int_t    i, j, k, luptr, istart, iptr;
+    int      jcol, n, ldb, nrhs;
     double   *work, *rhs_work, *soln;
     flops_t  solve_ops;
-    void dprint_soln(int n, int nrhs, double *soln);
+    void dprint_soln(int n, int nrhs, const double *soln);
 
     /* Test input parameters ... */
     *info = 0;
@@ -129,8 +130,8 @@ dgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
 	      B->Stype != SLU_DN || B->Dtype != SLU_D || B->Mtype != SLU_GE )
 	*info = -6;
     if ( *info ) {
-	i = -(*info);
-	input_error("dgstrs", &i);
+	int ii = -(*info);
+	input_error("dgstrs", &ii);
 	return;
     }
 
@@ -227,7 +228,7 @@ dgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
 	    } /* else ... */
 	} /* for L-solve */
 
-#ifdef DEBUG
+#if ( DEBUGlevel>=2 )
   	printf("After L-solve: y=\n");
 	dprint_soln(n, nrhs, Bmat);
 #endif
@@ -281,7 +282,7 @@ dgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
 	    
 	} /* for U-solve */
 
-#ifdef DEBUG
+#if ( DEBUGlevel>=2 )
   	printf("After U-solve: x=\n");
 	dprint_soln(n, nrhs, Bmat);
 #endif
@@ -330,7 +331,7 @@ dgstrs (trans_t trans, SuperMatrix *L, SuperMatrix *U,
  * Diagnostic print of the solution vector 
  */
 void
-dprint_soln(int n, int nrhs, double *soln)
+dprint_soln(int n, int nrhs, const double *soln)
 {
     int i;
 

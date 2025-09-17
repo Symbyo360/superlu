@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -17,18 +17,26 @@ at the top-level directory.
  *
  */
 
+/*! \file
+ * Convert a full matrix into a sparse matrix format.
+ *
+ * \ingroup TestingD
+ */
+
 #include "slu_ddefs.h"
 
-/*
- * Convert a full matrix into a sparse matrix format. 
+/*!
+ * Convert a full matrix into a sparse matrix format.
+ *
+ * For double.
  */
 int
 sp_dconvert(int m, int n, double *A, int lda, int kl, int ku,
-	   double *a, int *asub, int *xa, int *nnz)
+	   double *a, int_t *asub, int_t *xa, int_t *nnz)
 {
-    int     lasta = 0;
-    int     i, j, ilow, ihigh;
-    int     *row;
+    int_t     lasta = 0;
+    int_t     i, j, ilow, ihigh;
+    int_t     *row;
     double  *val;
 
     for (j = 0; j < n; ++j) {

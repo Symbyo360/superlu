@@ -87,17 +87,17 @@ dpanel_bmod (
     int          fsupc, nsupc, nsupr, nrow;
     int          krep, krep_ind;
     double       ukj, ukj1, ukj2;
-    int          luptr, luptr1, luptr2;
+    int_t        luptr, luptr1, luptr2;
     int          segsze;
     int          block_nrow;  /* no of rows in a block row */
-    register int lptr;	      /* Points to the row subscripts of a supernode */
+    int_t        lptr;	      /* Points to the row subscripts of a supernode */
     int          kfnz, irow, no_zeros; 
     register int isub, isub1, i;
     register int jj;	      /* Index through each column in the panel */
     int          *xsup, *supno;
-    int          *lsub, *xlsub;
+    int_t        *lsub, *xlsub;
     double       *lusup;
-    int          *xlusup;
+    int_t        *xlusup;
     int          *repfnz_col; /* repfnz[] for a column in the panel */
     double       *dense_col;  /* dense[] for a column in the panel */
     double       *tempv1;             /* Used in 1-D update */
@@ -152,7 +152,7 @@ dpanel_bmod (
 		 repfnz_col += m, dense_col += m, TriTmp += ldaTmp ) {
 
 		kfnz = repfnz_col[krep];
-		if ( kfnz == EMPTY ) continue;	/* Skip any zero segment */
+		if ( kfnz == SLU_EMPTY ) continue;	/* Skip any zero segment */
 	    
 		segsze = krep - kfnz + 1;
 		luptr = xlusup[fsupc];
@@ -250,7 +250,7 @@ dpanel_bmod (
 		     repfnz_col += m, dense_col += m, TriTmp += ldaTmp) {
 		    
 		    kfnz = repfnz_col[krep];
-		    if ( kfnz == EMPTY ) continue; /* Skip any zero segment */
+		    if ( kfnz == SLU_EMPTY ) continue; /* Skip any zero segment */
 		    
 		    segsze = krep - kfnz + 1;
 		    if ( segsze <= 3 ) continue;   /* skip unrolled cases */
@@ -301,7 +301,7 @@ dpanel_bmod (
 	    for (jj = jcol; jj < jcol + w; jj++,
 		 repfnz_col += m, dense_col += m, TriTmp += ldaTmp) {
 		kfnz = repfnz_col[krep];
-		if ( kfnz == EMPTY ) continue; /* Skip any zero segment */
+		if ( kfnz == SLU_EMPTY ) continue; /* Skip any zero segment */
 		
 		segsze = krep - kfnz + 1;
 		if ( segsze <= 3 ) continue; /* skip unrolled cases */
@@ -325,7 +325,7 @@ dpanel_bmod (
 		 repfnz_col += m, dense_col += m) {
 		
 		kfnz = repfnz_col[krep];
-		if ( kfnz == EMPTY ) continue;	/* Skip any zero segment */
+		if ( kfnz == SLU_EMPTY ) continue;	/* Skip any zero segment */
 		
 		segsze = krep - kfnz + 1;
 		luptr = xlusup[fsupc];
@@ -454,6 +454,4 @@ dpanel_bmod (
     } /* for each updating supernode ... */
 
 }
-
-
 

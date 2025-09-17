@@ -1,53 +1,47 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include <math.h>
+#include <stdlib.h>
 #include <string.h>
-#include "f2c.h"
+#include "../../SRC/slu_dcomplex.h"
 
 /* Table of constant values */
 
 static doublecomplex c_b1 = {0.,0.};
 static doublecomplex c_b2 = {1.,0.};
-static integer c__3 = 3;
-static integer c__1 = 1;
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int zlaror_slu(char *side, char *init, integer *m, integer *n, 
-	doublecomplex *a, integer *lda, integer *iseed, doublecomplex *x, 
-	integer *info)
+/* Subroutine */ int zlaror_slu(char *side, char *init, int *m, int *n,
+	doublecomplex *a, int *lda, int *iseed, doublecomplex *x,
+	int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
+    int a_dim1, a_offset, i__1, i__2, i__3;
     doublecomplex z__1, z__2;
 
-    /* Builtin functions */
-    double z_abs(doublecomplex *);
-    void d_cnjg(doublecomplex *, doublecomplex *);
-
     /* Local variables */
-    static integer kbeg, jcol;
-    static doublereal xabs;
-    static integer irow, j;
+    static int kbeg, jcol;
+    static double xabs;
+    static int irow, j;
     static doublecomplex csign;
-    extern /* Subroutine */ int zgerc_(integer *, integer *, doublecomplex *, 
-	    doublecomplex *, integer *, doublecomplex *, integer *, 
-	    doublecomplex *, integer *), zscal_(integer *, doublecomplex *, 
-	    doublecomplex *, integer *);
-    static integer ixfrm;
-    extern /* Subroutine */ int zgemv_(char *, integer *, integer *, 
-	    doublecomplex *, doublecomplex *, integer *, doublecomplex *, 
-	    integer *, doublecomplex *, doublecomplex *, integer *);
-    static integer itype, nxfrm;
-    static doublereal xnorm;
-    extern doublereal dznrm2_(integer *, doublecomplex *, integer *);
+    extern /* Subroutine */ int zgerc_(int *, int *, doublecomplex *,
+	    doublecomplex *, int *, doublecomplex *, int *,
+	    doublecomplex *, int *), zscal_(int *, doublecomplex *,
+	    doublecomplex *, int *);
+    static int ixfrm;
+    extern /* Subroutine */ int zgemv_(char *, int *, int *,
+	    doublecomplex *, doublecomplex *, int *, doublecomplex *,
+	    int *, doublecomplex *, doublecomplex *, int *);
+    static int itype, nxfrm;
+    static double xnorm;
+    extern double dznrm2_(int *, doublecomplex *, int *);
     extern int input_error(char *, int *);
-    static doublereal factor;
-    extern /* Subroutine */ int zlacgv_slu(integer *, doublecomplex *, integer *)
-	    ;
-    extern /* Double Complex */ VOID zlarnd_slu(doublecomplex *, integer *, 
-	    integer *);
-    extern /* Subroutine */ int zlaset_slu(char *, integer *, integer *, 
-	    doublecomplex *, doublecomplex *, doublecomplex *, integer *);
+    static double factor;
+    extern /* Subroutine */ int zlacgv_slu(int *, doublecomplex *, int *);
+    extern /* Double Complex */ void zlarnd_slu(doublecomplex *, int *, int *);
+    extern /* Subroutine */ int zlaset_slu(char *, int *, int *,
+	    doublecomplex *, doublecomplex *, doublecomplex *, int *);
     static doublecomplex xnorms;
 
 
@@ -103,7 +97,7 @@ static integer c__1 = 1;
              columns will be orthogonal, the remaining columns being   
              zero.   
              For matrices where M > N, just use the previous   
-             explaination, interchanging 'L' and 'R' and "rows" and   
+             explanation, interchanging 'L' and 'R' and "rows" and   
              "columns".   
 
              Not modified.   
@@ -261,7 +255,7 @@ static integer c__1 = 1;
 	z__1.r = -csign.r, z__1.i = -csign.i;
 	x[i__2].r = z__1.r, x[i__2].i = z__1.i;
 	factor = xnorm * (xnorm + xabs);
-	if (abs(factor) < 1e-20) {
+	if (fabs(factor) < 1e-20) {
 	    *info = 1;
 	    i__2 = -(*info);
 	    input_error("ZLAROR", &i__2);

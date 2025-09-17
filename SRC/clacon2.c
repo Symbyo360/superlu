@@ -47,11 +47,11 @@ at the top-level directory.
  *   N      (input) INT
  *          The order of the matrix.  N >= 1.   
  *
- *   V      (workspace) COMPLEX PRECISION array, dimension (N)   
+ *   V      (workspace) SINGLE COMPLEX PRECISION array, dimension (N)   
  *          On the final return, V = A*W,  where  EST = norm(V)/norm(W)   
  *          (W is not returned).   
  *
- *   X      (input/output) COMPLEX PRECISION array, dimension (N)   
+ *   X      (input/output) SINGLE COMPLEX PRECISION array, dimension (N)   
  *          On an intermediate return, X should be overwritten by   
  *                A * X,   if KASE=1,   
  *                A' * X,  if KASE=2,
@@ -87,12 +87,12 @@ at the top-level directory.
  */
 
 int
-clacon2_(int *n, complex *v, complex *x, float *est, int *kase, int isave[3])
+clacon2_(int *n, singlecomplex *v, singlecomplex *x, float *est, int *kase, int isave[3])
 {
     /* Table of constant values */
     int c__1 = 1;
-    complex      zero = {0.0, 0.0};
-    complex      one = {1.0, 0.0};
+    singlecomplex      zero = {0.0, 0.0};
+    singlecomplex      one = {1.0, 0.0};
 
     /* System generated locals */
     float d__1;
@@ -104,9 +104,9 @@ clacon2_(int *n, complex *v, complex *x, float *est, int *kase, int isave[3])
     float temp;
     float safmin;
     extern float smach(char *);
-    extern int icmax1_slu(int *, complex *, int *);
-    extern double scsum1_slu(int *, complex *, int *);
-    extern int ccopy_(int *, complex *, int *, complex *, int *);
+    extern int icmax1_slu(int *, singlecomplex *, int *);
+    extern double scsum1_slu(int *, singlecomplex *, int *);
+    extern void ccopy_(int *, singlecomplex *, int *, singlecomplex *, int *);
 
     safmin = smach("Safe minimum");
     if ( *kase == 0 ) {
@@ -198,7 +198,7 @@ L90:
     return 0;
 
     /*     ................ ENTRY   (isave[0] == 4)
-	   X HAS BEEN OVERWRITTEN BY TRANDPOSE(A)*X. */
+	   X HAS BEEN OVERWRITTEN BY TRANSPOSE(A)*X. */
 L110:
     jlast = isave[1];  /* j; */
     isave[1] = icmax1_slu(n, &x[0], &c__1); /* j */

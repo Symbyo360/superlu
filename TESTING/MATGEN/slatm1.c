@@ -1,28 +1,24 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include "powi.h"
 
-#include "f2c.h"
+#include <math.h>
+#include <stdlib.h>
 
-/* Subroutine */ int slatm1_slu(integer *mode, real *cond, integer *irsign, 
-	integer *idist, integer *iseed, real *d, integer *n, integer *info)
+/* Subroutine */ int slatm1_slu(int *mode, float *cond, int *irsign,
+	int *idist, int *iseed, float *d, int *n, int *info)
 {
     /* System generated locals */
-    integer i__1, i__2;
-    doublereal d__1, d__2;
-
-    /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *), pow_ri(real *, integer *), log(
-	    doublereal), exp(doublereal);
+    int i__1, i__2;
+    double d__1, d__2;
 
     /* Local variables */
-    static real temp;
-    static integer i;
-    static real alpha;
+    static float temp;
+    static int i;
+    static float alpha;
     extern int input_error(char *, int *);
-    extern doublereal dlaran_sluslu(integer *);
-    extern /* Subroutine */ int slarnv_slu(integer *, integer *, integer *, real 
+    extern double dlaran_sluslu(int *);
+    extern /* Subroutine */ int slarnv_slu(int *, int *, int *, float
 	    *);
 
 
@@ -186,13 +182,13 @@ L30:
 L50:
 	d[1] = 1.f;
 	if (*n > 1) {
-	    d__1 = (doublereal) (*cond);
-	    d__2 = (doublereal) (-1.f / (real) (*n - 1));
-	    alpha = pow_dd(&d__1, &d__2);
+	    d__1 = (double) (*cond);
+	    d__2 = (double) (-1.f / (float) (*n - 1));
+            alpha = pow(d__1, d__2);
 	    i__1 = *n;
 	    for (i = 2; i <= i__1; ++i) {
 		i__2 = i - 1;
-		d[i] = pow_ri(&alpha, &i__2);
+		d[i] = powif(alpha, i__2);
 /* L60: */
 	    }
 	}
@@ -204,10 +200,10 @@ L70:
 	d[1] = 1.f;
 	if (*n > 1) {
 	    temp = 1.f / *cond;
-	    alpha = (1.f - temp) / (real) (*n - 1);
+	    alpha = (1.f - temp) / (float) (*n - 1);
 	    i__1 = *n;
 	    for (i = 2; i <= i__1; ++i) {
-		d[i] = (real) (*n - i) * alpha + temp;
+		d[i] = (float) (*n - i) * alpha + temp;
 /* L80: */
 	    }
 	}
@@ -239,7 +235,7 @@ L120:
 	    for (i = 1; i <= i__1; ++i) {
 		temp = dlaran_sluslu(&iseed[1]);
 		if (temp > .5f) {
-		    d[i] = -(doublereal)d[i];
+		    d[i] = -(double)d[i];
 		}
 /* L130: */
 	    }

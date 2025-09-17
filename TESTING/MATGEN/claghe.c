@@ -1,52 +1,47 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_scomplex.h"
+#include "../../SRC/slu_sdefs.h"
 
 /* Table of constant values */
 
-static complex c_b1 = {0.f,0.f};
-static complex c_b2 = {1.f,0.f};
-static integer c__3 = 3;
-static integer c__1 = 1;
+static singlecomplex c_b1 = {0.f,0.f};
+static singlecomplex c_b2 = {1.f,0.f};
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int claghe_slu(integer *n, integer *k, real *d, complex *a, 
-	integer *lda, integer *iseed, complex *work, integer *info)
+/* Subroutine */ int claghe_slu(int *n, int *k, float *d, singlecomplex *a,
+	int *lda, int *iseed, singlecomplex *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    doublereal d__1;
-    complex q__1, q__2, q__3, q__4;
-
-    /* Builtin functions */
-    double c_abs(complex *);
-    void c_div(complex *, complex *, complex *), r_cnjg(complex *, complex *);
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    double d__1;
+    singlecomplex q__1, q__2, q__3, q__4;
 
     /* Local variables */
-    extern /* Subroutine */ int cher2_(char *, integer *, complex *, complex *
-	    , integer *, complex *, integer *, complex *, integer *);
-    static integer i, j;
-    extern /* Subroutine */ int cgerc_(integer *, integer *, complex *, 
-	    complex *, integer *, complex *, integer *, complex *, integer *);
-    static complex alpha;
-    extern /* Subroutine */ int cscal_(integer *, complex *, complex *, 
-	    integer *);
-    extern /* Complex */ VOID cdotc_(complex *, integer *, complex *, integer 
-	    *, complex *, integer *);
-    extern /* Subroutine */ int cgemv_(char *, integer *, integer *, complex *
-	    , complex *, integer *, complex *, integer *, complex *, complex *
-	    , integer *), chemv_(char *, integer *, complex *, 
-	    complex *, integer *, complex *, integer *, complex *, complex *, 
-	    integer *), caxpy_(integer *, complex *, complex *, 
-	    integer *, complex *, integer *);
-    extern real scnrm2_(integer *, complex *, integer *);
-    static complex wa, wb;
-    static real wn;
-    extern /* Subroutine */ int clarnv_slu(integer *, integer *, integer *, complex *);
+    extern /* Subroutine */ int cher2_(char *, int *, singlecomplex *, singlecomplex *
+	    , int *, singlecomplex *, int *, singlecomplex *, int *);
+    static int i, j;
+    extern /* Subroutine */ int cgerc_(int *, int *, singlecomplex *,
+	    singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, int *);
+    static singlecomplex alpha;
+    extern /* Subroutine */ int cscal_(int *, singlecomplex *, singlecomplex *,
+	    int *);
+    extern /* Complex */ void cdotc_(singlecomplex *, int *, singlecomplex *, int
+	    *, singlecomplex *, int *);
+    extern /* Subroutine */ int cgemv_(char *, int *, int *, singlecomplex *
+	    , singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, singlecomplex *
+	    , int *), chemv_(char *, int *, singlecomplex *,
+	    singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, singlecomplex *,
+	    int *), caxpy_(int *, singlecomplex *, singlecomplex *,
+	    int *, singlecomplex *, int *);
+    extern float scnrm2_(int *, singlecomplex *, int *);
+    static singlecomplex wa, wb;
+    static float wn;
+    extern /* Subroutine */ int clarnv_slu(int *, int *, int *, singlecomplex *);
     extern int input_error(char *, int *);
-    static complex tau;
+    static singlecomplex tau;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -117,7 +112,7 @@ static integer c__1 = 1;
 	*info = -1;
     } else if (*k < 0 || *k > *n - 1) {
 	*info = -2;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -5;
     }
     if (*info < 0) {
@@ -242,7 +237,7 @@ static integer c__1 = 1;
 		1], &c__1);
 	i__2 = *n - *k - i + 1;
 	i__3 = *k - 1;
-	q__1.r = -(doublereal)tau.r, q__1.i = -(doublereal)tau.i;
+	q__1.r = -(double)tau.r, q__1.i = -(double)tau.i;
 	cgerc_(&i__2, &i__3, &q__1, &a[*k + i + i * a_dim1], &c__1, &work[1], 
 		&c__1, &a[*k + i + (i + 1) * a_dim1], lda);
 
@@ -277,7 +272,7 @@ ht
 		, &c__1, &a[*k + i + (*k + i) * a_dim1], lda);
 
 	i__2 = *k + i + i * a_dim1;
-	q__1.r = -(doublereal)wa.r, q__1.i = -(doublereal)wa.i;
+	q__1.r = -(double)wa.r, q__1.i = -(double)wa.i;
 	a[i__2].r = q__1.r, a[i__2].i = q__1.i;
 	i__2 = *n;
 	for (j = *k + i + 1; j <= i__2; ++j) {

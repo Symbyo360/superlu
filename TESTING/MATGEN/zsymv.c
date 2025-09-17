@@ -1,9 +1,10 @@
 #include <string.h>
-#include "f2c.h"
+#include "../../SRC/slu_dcomplex.h"
+#include "../../SRC/slu_ddefs.h"
 
-/* Subroutine */ int zsymv_(char *uplo, integer *n, doublecomplex *alpha, 
-	doublecomplex *a, integer *lda, doublecomplex *x, integer *incx, 
-	doublecomplex *beta, doublecomplex *y, integer *incy)
+/* Subroutine */ int zsymv_(char *uplo, int *n, doublecomplex *alpha,
+	doublecomplex *a, int *lda, doublecomplex *x, int *incx,
+	doublecomplex *beta, doublecomplex *y, int *incy)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -106,10 +107,10 @@
 
     doublecomplex z__1, z__2, z__3, z__4;
     /* Local variables */
-    static integer info;
+    static int info;
     static doublecomplex temp1, temp2;
-    static integer i, j;
-    static integer ix, iy, jx, jy, kx, ky;
+    static int i, j;
+    static int ix, iy, jx, jy, kx, ky;
     extern int input_error(char *, int *);
 
 #define X(I) x[(I)-1]
@@ -122,7 +123,7 @@
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	info = 5;
     } else if (*incx == 0) {
 	info = 7;

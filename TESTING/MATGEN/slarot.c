@@ -1,31 +1,30 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include <stdbool.h>
 
 /* Table of constant values */
 
-static integer c__4 = 4;
-static integer c__8 = 8;
-static integer c__1 = 1;
+static int c__4 = 4;
+static int c__8 = 8;
+static int c__1 = 1;
 
-/* Subroutine */ int slarot_slu(logical *lrows, logical *lleft, logical *lright, 
-	integer *nl, real *c, real *s, real *a, integer *lda, real *xleft, 
-	real *xright)
+/* Subroutine */
+int slarot_slu(bool *lrows, bool *lleft, bool *lright,
+	int *nl, float *c, float *s, float *a, int *lda, float *xleft,
+	float *xright)
 {
     /* System generated locals */
-    integer i__1;
+    int i__1;
 
     /* Local variables */
-    static integer iinc;
-    extern /* Subroutine */ int srot_(integer *, real *, integer *, real *, 
-	    integer *, real *, real *);
-    static integer inext, ix, iy, nt;
-    static real xt[2], yt[2];
+    static int iinc;
+    extern /* Subroutine */ int srot_(int *, float *, int *, float *,
+	    int *, float *, float *);
+    static int inext, ix, iy, nt;
+    static float xt[2], yt[2];
     extern int input_error(char *, int *);
-    static integer iyt;
+    static int iyt;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -39,7 +38,7 @@ static integer c__1 = 1;
 
        SLAROT applies a (Givens) rotation to two adjacent rows or   
        columns, where one element of the first and/or last column/row   
-       may be a separate variable.  This is specifically indended   
+       may be a separate variable.  This is specifically intended   
        for use on matrices stored in some format other than GE, so   
        that elements of the matrix may be used or modified for which   
        no array element is provided.   

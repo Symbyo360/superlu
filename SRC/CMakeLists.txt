@@ -4,7 +4,9 @@ set(headers
     slu_dcomplex.h
     slu_scomplex.h
     slu_util.h
-    superlu_enum_consts.h)
+    superlu_enum_consts.h
+    ${CMAKE_CURRENT_BINARY_DIR}/superlu_config.h
+)
 
 set(sources
   superlu_timer.c
@@ -21,10 +23,9 @@ set(sources
   ilu_relax_snode.c
   ilu_heap_relax_snode.c
   mark_relax.c
+  # mc64ad.c
   qselect.c
   input_error.c
-  dmach.c
-  smach.c
 )
 
 set_source_files_properties(superlu_timer.c PROPERTIES COMPILE_FLAGS -O0)
@@ -67,7 +68,7 @@ if(enable_single)
     smyblas2.c
     sgsisx.c
     sgsitrf.c
-    sldperm.c
+    # sldperm.c
     ilu_sdrop_row.c
     ilu_ssnode_dfs.c
     ilu_scolumn_dfs.c
@@ -117,7 +118,7 @@ if(enable_double)
     dmyblas2.c
     dgsisx.c
     dgsitrf.c
-    dldperm.c
+    # dldperm.c
     ilu_ddrop_row.c
     ilu_dsnode_dfs.c
     ilu_dcolumn_dfs.c
@@ -170,7 +171,7 @@ if(enable_complex)
     cmyblas2.c
     cgsisx.c
     cgsitrf.c
-    cldperm.c
+    # cldperm.c
     ilu_cdrop_row.c
     ilu_csnode_dfs.c
     ilu_ccolumn_dfs.c
@@ -221,7 +222,7 @@ if(enable_complex16)
     zmyblas2.c
     zgsisx.c
     zgsitrf.c
-    zldperm.c
+    # zldperm.c
     ilu_zdrop_row.c
     ilu_zsnode_dfs.c
     ilu_zcolumn_dfs.c
@@ -232,14 +233,8 @@ if(enable_complex16)
   )
 endif()
 
-if(NOT BLAS_FOUND)
-  list(APPEND sources ${CBLAS_SOURCES})
-  list(APPEND headers ${CBLAS_HEADERS})
-endif()
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_library(superlu STATIC ${sources})
-target_link_libraries(superlu PUBLIC ${BLAS_LIB})
+add_library(superlu ${sources})
+target_link_libraries(superlu PUBLIC ${BLAS_LIB} ${METIS_LIB})
 if (NOT WIN32)
   target_link_libraries(superlu PUBLIC m)
 endif ()

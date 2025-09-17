@@ -13,10 +13,11 @@ at the top-level directory.
  * \brief Computes an LU factorization of a general sparse matrix
  *
  * <pre>
- * -- SuperLU routine (version 3.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * October 15, 2003
+ * August 2024
  * 
  * Copyright (c) 1994 by Xerox Corporation.  All rights reserved.
  *
@@ -198,10 +199,10 @@ at the top-level directory.
 
 void
 dgstrf (superlu_options_t *options, SuperMatrix *A,
-        int relax, int panel_size, int *etree, void *work, int lwork,
+        int relax, int panel_size, int *etree, void *work, int_t lwork,
         int *perm_c, int *perm_r, SuperMatrix *L, SuperMatrix *U,
     	GlobalLU_t *Glu, /* persistent to facilitate multiple factorizations */
-        SuperLUStat_t *stat, int *info)
+        SuperLUStat_t *stat, int_t *info)
 {
     /* Local working arrays */
     NCPformat *Astore;
@@ -210,18 +211,17 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
     int       *iperm_c; /* inverse of perm_c */
     int       *iwork;
     double    *dwork;
-    int	      *segrep, *repfnz, *parent, *xplore;
+    int	      *segrep, *repfnz, *parent;
     int	      *panel_lsub; /* dense[]/panel_lsub[] pair forms a w-wide SPA */
-    int	      *xprune;
+    int_t     *xprune, *xplore;
     int	      *marker;
     double    *dense, *tempv;
     int       *relax_end;
     double    *a;
-    int       *asub;
-    int       *xa_begin, *xa_end;
+    int_t     *asub, *xa_begin, *xa_end;
+    int_t     *xlsub, *xlusup, *xusub;
     int       *xsup, *supno;
-    int       *xlsub, *xlusup, *xusub;
-    int       nzlumax;
+    int_t     nzlumax;
     double fill_ratio = sp_ienv(6);  /* estimated fill ratio */
 
     /* Local scalars */
@@ -230,14 +230,14 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
     int       pivrow;   /* pivotal row number in the original matrix A */
     int       nseg1;	/* no of segments in U-column above panel row jcol */
     int       nseg;	/* no of segments in each U-column */
-    register int jcol;	
+    register int jcol, jj;
     register int kcol;	/* end column of a relaxed snode */
     register int icol;
-    register int i, k, jj, new_next, iinfo;
-    int       m, n, min_mn, jsupno, fsupc, nextlu, nextu;
+    int_t     i, k, iinfo, new_next, nextlu, nextu;
+    int       m, n, min_mn, jsupno, fsupc;
     int       w_def;	/* upper bound on panel width */
     int       usepr, iperm_r_allocated = 0;
-    int       nnzL, nnzU;
+    int_t     nnzL, nnzU;
     int       *panel_histo = stat->panel_histo;
     flops_t   *ops = stat->ops;
 
@@ -269,11 +269,11 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
     usepr = (fact == SamePattern_SameRowPerm);
     if ( usepr ) {
 	/* Compute the inverse of perm_r */
-	iperm_r = (int *) intMalloc(m);
+	iperm_r = (int *) int32Malloc(m);
 	for (k = 0; k < m; ++k) iperm_r[perm_r[k]] = k;
 	iperm_r_allocated = 1;
     }
-    iperm_c = (int *) intMalloc(n);
+    iperm_c = (int *) int32Malloc(n);
     for (k = 0; k < n; ++k) iperm_c[perm_c[k]] = k;
 
     /* Identify relaxed snodes */
@@ -284,8 +284,8 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
         relax_snode(n, etree, relax, marker, relax_end); 
     }
     
-    ifill (perm_r, m, EMPTY);
-    ifill (marker, m * NO_MARKER, EMPTY);
+    ifill (perm_r, m, SLU_EMPTY);
+    ifill (marker, m * NO_MARKER, SLU_EMPTY);
     supno[0] = -1;
     xsup[0]  = xlsub[0] = xusub[0] = xlusup[0] = 0;
     w_def    = panel_size;
@@ -297,7 +297,7 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
      */
     for (jcol = 0; jcol < min_mn; ) {
 
-	if ( relax_end[jcol] != EMPTY ) { /* start of a relaxed snode */
+	if ( relax_end[jcol] != SLU_EMPTY ) { /* start of a relaxed snode */
    	    kcol = relax_end[jcol];	  /* end of the relaxed snode */
 	    panel_histo[kcol-jcol+1]++;
 
@@ -334,7 +334,7 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
 				      iperm_r, iperm_c, &pivrow, Glu, stat)) )
 		    if ( iinfo == 0 ) iinfo = *info;
 		
-#ifdef DEBUG
+#if ( DEBUGlevel>=2 )
 		dprint_lu_col("[1]: ", icol, pivrow, xprune, Glu);
 #endif
 
@@ -349,7 +349,7 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
 	     */
 	    panel_size = w_def;
 	    for (k = jcol + 1; k < SUPERLU_MIN(jcol+panel_size, min_mn); k++) 
-		if ( relax_end[k] != EMPTY ) {
+		if ( relax_end[k] != SLU_EMPTY ) {
 		    panel_size = k - jcol;
 		    break;
 		}
@@ -396,7 +396,7 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
 		/* Reset repfnz[] for this column */
 	    	resetrep_col (nseg, segrep, &repfnz[k]);
 		
-#ifdef DEBUG
+#if ( DEBUGlevel>=2 )
 		dprint_lu_col("[2]: ", jj, pivrow, xprune, Glu);
 #endif
 
@@ -409,20 +409,30 @@ dgstrf (superlu_options_t *options, SuperMatrix *A,
     } /* for */
 
     *info = iinfo;
-    
-    if ( m > n ) {
-	k = 0;
-        for (i = 0; i < m; ++i) 
-            if ( perm_r[i] == EMPTY ) {
-    		perm_r[i] = n + k;
-		++k;
-	    }
-    }
 
+    /* Complete perm_r[] for rank-deficient or tall-skinny matrices */
+    /* k is the rank of U
+       pivots have been completed for rows < k
+       Now fill in the pivots for rows k to m */
+    k = iinfo == 0 ? n : (int)iinfo - 1;
+    if (m > k) {
+        /* if k == m, then all the row permutations are complete and
+           we can short circuit looking through the rest of the vector */
+        for (i = 0; i < m && k < m; ++i) {
+            if (perm_r[i] == SLU_EMPTY) {
+                perm_r[i] = k;
+                ++k;
+            }
+
+        }
+    }
+    
     countnz(min_mn, xprune, &nnzL, &nnzU, Glu);
     fixupL(min_mn, perm_r, Glu);
 
     dLUWorkFree(iwork, dwork, Glu); /* Free work space and compress storage */
+    SUPERLU_FREE(xplore);
+    SUPERLU_FREE(xprune);
 
     if ( fact == SamePattern_SameRowPerm ) {
         /* L and U structures may have changed due to possibly different

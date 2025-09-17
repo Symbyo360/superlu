@@ -1,31 +1,30 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include <stdbool.h>
 
 /* Table of constant values */
 
-static integer c__4 = 4;
-static integer c__8 = 8;
-static integer c__1 = 1;
+static int c__4 = 4;
+static int c__8 = 8;
+static int c__1 = 1;
 
-/* Subroutine */ int dlarot_slu(logical *lrows, logical *lleft, logical *lright, 
-	integer *nl, doublereal *c, doublereal *s, doublereal *a, integer *
-	lda, doublereal *xleft, doublereal *xright)
+/* Subroutine */
+int dlarot_slu(bool *lrows, bool *lleft, bool *lright,
+	int *nl, double *c, double *s, double *a, int *
+	lda, double *xleft, double *xright)
 {
     /* System generated locals */
-    integer i__1;
+    int i__1;
 
     /* Local variables */
-    static integer iinc;
-    extern /* Subroutine */ int drot_(integer *, doublereal *, integer *, 
-	    doublereal *, integer *, doublereal *, doublereal *);
-    static integer inext, ix, iy, nt;
-    static doublereal xt[2], yt[2];
+    static int iinc;
+    extern /* Subroutine */ int drot_(int *, double *, int *,
+	    double *, int *, double *, double *);
+    static int inext, ix, iy, nt;
+    static double xt[2], yt[2];
     extern int input_error(char *, int *);
-    static integer iyt;
+    static int iyt;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -39,7 +38,7 @@ static integer c__1 = 1;
 
        DLAROT applies a (Givens) rotation to two adjacent rows or   
        columns, where one element of the first and/or last column/row   
-       may be a separate variable.  This is specifically indended   
+       may be a separate variable.  This is specifically intended   
        for use on matrices stored in some format other than GE, so   
        that elements of the matrix may be used or modified for which   
        no array element is provided.   

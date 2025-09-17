@@ -1,24 +1,19 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_dcomplex.h"
 
-/* Double Complex */ VOID zdotc_(doublecomplex * ret_val, integer *n, 
-	doublecomplex *zx, integer *incx, doublecomplex *zy, integer *incy)
+/* Double Complex */ void zdotc_(doublecomplex * ret_val, int *n,
+	doublecomplex *zx, int *incx, doublecomplex *zy, int *incy)
 {
     /* System generated locals */
-    integer i__1, i__2;
+    int i__1, i__2;
     doublecomplex z__1, z__2, z__3;
 
-    /* Builtin functions */
-    void d_cnjg(doublecomplex *, doublecomplex *);
-
     /* Local variables */
-    static integer i;
+    static int i;
     static doublecomplex ztemp;
-    static integer ix, iy;
+    static int ix, iy;
 
 
 /*     forms the dot product of a vector.   

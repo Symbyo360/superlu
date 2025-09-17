@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -17,19 +17,27 @@ at the top-level directory.
  *
  */
 
+/*! \file
+ * Convert a full matrix into a sparse matrix format.
+ *
+ * \ingroup TestingC
+ */
+
 #include "slu_cdefs.h"
 
-/*
- * Convert a full matrix into a sparse matrix format. 
+/*!
+ * Convert a full matrix into a sparse matrix format.
+ *
+ * For complex float.
  */
 int
-sp_cconvert(int m, int n, complex *A, int lda, int kl, int ku,
-	   complex *a, int *asub, int *xa, int *nnz)
+sp_cconvert(int m, int n, singlecomplex *A, int lda, int kl, int ku,
+	   singlecomplex *a, int_t *asub, int_t *xa, int_t *nnz)
 {
-    int     lasta = 0;
-    int     i, j, ilow, ihigh;
-    int     *row;
-    complex  *val;
+    int_t     lasta = 0;
+    int_t     i, j, ilow, ihigh;
+    int_t     *row;
+    singlecomplex  *val;
 
     for (j = 0; j < n; ++j) {
 	xa[j] = lasta;
