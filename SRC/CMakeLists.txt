@@ -68,7 +68,7 @@ if(enable_single)
     smyblas2.c
     sgsisx.c
     sgsitrf.c
-    sldperm.c
+    # sldperm.c
     ilu_sdrop_row.c
     ilu_ssnode_dfs.c
     ilu_scolumn_dfs.c
@@ -171,7 +171,7 @@ if(enable_complex)
     cmyblas2.c
     cgsisx.c
     cgsitrf.c
-    cldperm.c
+    # cldperm.c
     ilu_cdrop_row.c
     ilu_csnode_dfs.c
     ilu_ccolumn_dfs.c
@@ -222,7 +222,7 @@ if(enable_complex16)
     zmyblas2.c
     zgsisx.c
     zgsitrf.c
-    zldperm.c
+    # zldperm.c
     ilu_zdrop_row.c
     ilu_zsnode_dfs.c
     ilu_zcolumn_dfs.c
