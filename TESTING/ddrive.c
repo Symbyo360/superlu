@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -10,19 +10,27 @@ at the top-level directory.
 */
 
 /*
- * -- SuperLU routine (version 3.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * October 15, 2003
+ * August 2024
  *
  */
-/*
- * File name:		ddrive.c
- * Purpose:             MAIN test program
+
+/*! \file
+ * DDRIVE is the main test program for the DOUBLE linear 
+ * equation driver routines DGSSV and DGSSVX.
+ * 
+ * The program is invoked by a shell script file -- dtest.csh.
+ * The output from the tests are written into a file -- dtest.out.
+ *
+ * \ingroup TestingD
  */
+#include <getopt.h>
 #include <string.h>
-#include <unistd.h>
 #include "slu_ddefs.h"
+#include "MATGEN/matgen.h"
 
 #define NTESTS    5      /* Number of test types */
 #define NTYPES    11     /* Number of matrix types */
@@ -35,25 +43,16 @@ at the top-level directory.
 static void
 parse_command_line(int argc, char *argv[], char *matrix_type,
 		   int *n, int *w, int *relax, int *nrhs, int *maxsuper,
-		   int *rowblk, int *colblk, int *lwork, double *u, FILE **fp);
+		   int *rowblk, int *colblk, int_t *lwork, double *u, FILE **fp);
 
+/*!
+ * Entry point of test program.
+ */
 int main(int argc, char *argv[])
 {
-/* 
- * Purpose
- * =======
- *
- * DDRIVE is the main test program for the DOUBLE linear 
- * equation driver routines DGSSV and DGSSVX.
- * 
- * The program is invoked by a shell script file -- dtest.csh.
- * The output from the tests are written into a file -- dtest.out.
- *
- * =====================================================================
- */
     double         *a, *a_save;
-    int            *asub, *asub_save;
-    int            *xa, *xa_save;
+    int_t          *asub, *asub_save;
+    int_t          *xa, *xa_save;
     SuperMatrix  A, B, X, L, U;
     SuperMatrix  ASAV, AC;
     GlobalLU_t   Glu; /* Not needed on return. */
@@ -66,9 +65,10 @@ int main(int argc, char *argv[])
     double         *ferr, *berr;
     double         *rwork;
     double	   *wwork;
-    void           *work;
-    int            info, lwork, nrhs, panel_size, relax;
-    int            m, n, nnz;
+    void           *work = NULL;
+    int            nrhs, panel_size, relax;
+    int            m, n, info1;
+    int_t          nnz, lwork, info;
     double         *xact;
     double         *rhsb, *solx, *bsav;
     int            ldb, ldx;
@@ -79,8 +79,9 @@ int main(int argc, char *argv[])
     int            prefact, equil, iequed;
     int            nt, nrun, nfail, nerrs, imat, fimat, nimat;
     int            nfact, ifact, itran;
-    int            kl, ku, mode, lda;
-    int            zerot, izero, ioff;
+    int            kl, ku, mode, lda, ioff;
+    int            zerot; /* indicate whether the matrix is singular */
+    int            izero; /* indicate the first column that is entirely zero */
     double         u;
     double         anorm, cndnum;
     double         *Afull;
@@ -116,7 +117,7 @@ int main(int argc, char *argv[])
                        int *, double *, double *, int *, int *,
                        char *, double *, int *, double *, int *);
     extern int sp_dconvert(int, int, double *, int, int, int,
-	                   double *a, int *, int *, int *);
+	                   double *a, int_t *, int_t *, int_t *);
 
 
     /* Executable statements */
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
     if ( lwork > 0 ) {
 	work = SUPERLU_MALLOC(lwork);
 	if ( !work ) {
-	    fprintf(stderr, "expert: cannot allocate %d bytes\n", lwork);
+	    fprintf(stderr, "expert: cannot allocate %lld bytes\n", (long long) lwork);
 	    exit (-1);
 	}
     }
@@ -172,15 +173,17 @@ int main(int argc, char *argv[])
     rhsb = doubleMalloc(m * nrhs);
     bsav = doubleMalloc(m * nrhs);
     solx = doubleMalloc(n * nrhs);
+    xact = doubleMalloc(n * nrhs);
+    wwork = doubleCalloc( SUPERLU_MAX(m,n) * SUPERLU_MAX(4,nrhs) );
+
     ldb  = m;
     ldx  = n;
     dCreate_Dense_Matrix(&B, m, nrhs, rhsb, ldb, SLU_DN, SLU_D, SLU_GE);
     dCreate_Dense_Matrix(&X, n, nrhs, solx, ldx, SLU_DN, SLU_D, SLU_GE);
-    xact = doubleMalloc(n * nrhs);
-    etree   = intMalloc(n);
-    perm_r  = intMalloc(n);
-    perm_c  = intMalloc(n);
-    pc_save = intMalloc(n);
+    etree   = int32Malloc(n);
+    perm_r  = int32Malloc(n);
+    perm_c  = int32Malloc(n);
+    pc_save = int32Malloc(n);
     R       = (double *) SUPERLU_MALLOC(m*sizeof(double));
     C       = (double *) SUPERLU_MALLOC(n*sizeof(double));
     ferr    = (double *) SUPERLU_MALLOC(nrhs*sizeof(double));
@@ -193,7 +196,6 @@ int main(int argc, char *argv[])
     if ( !ferr ) ABORT("SUPERLU_MALLOC fails for ferr");
     if ( !berr ) ABORT("SUPERLU_MALLOC fails for berr");
     if ( !rwork ) ABORT("SUPERLU_MALLOC fails for rwork");
-    wwork   = doubleCalloc( SUPERLU_MAX(m,n) * SUPERLU_MAX(4,nrhs) );
 
     for (i = 0; i < n; ++i) perm_c[i] = pc_save[i] = i;
     options.ColPerm = MY_PERMC;
@@ -214,10 +216,10 @@ int main(int argc, char *argv[])
 
 	    dlatms_slu(&n, &n, dist, iseed, sym, &rwork[0], &mode, &cndnum,
 		    &anorm, &kl, &ku, "No packing", Afull, &lda,
-		    &wwork[0], &info);
+		    &wwork[0], &info1);
 
-	    if ( info ) {
-		printf(FMT3, "DLATMS", info, izero, n, nrhs, imat, nfail);
+	    if ( info1 ) {
+		printf(FMT3, "DLATMS", info1, izero, n, nrhs, imat, nfail);
 		continue;
 	    }
 
@@ -236,14 +238,14 @@ int main(int argc, char *argv[])
 			    Afull[ioff + i + j*lda] = zero;
 		}
 	    } else {
-		izero = 0;
+		izero = n+1; /* none of the column is zero */
 	    }
 
 	    /* Convert to sparse representation. */
 	    sp_dconvert(n, n, Afull, lda, kl, ku, a, asub, xa, &nnz);
 
 	} else {
-	    izero = 0;
+	    izero = n+1; /* none of the column is zero */
 	    zerot = 0;
 	}
 	
@@ -283,7 +285,7 @@ int main(int argc, char *argv[])
                         if ( equil || iequed ) {
 			    /* Compute row and column scale factors to
 			       equilibrate matrix A.    */
-			    dgsequ(&A, R, C, &rowcnd, &colcnd, &amax, &info);
+			    dgsequ(&A, R, C, &rowcnd, &colcnd, &amax, &info1);
 
 			    /* Force equilibration. */
 			    if ( !info && n > 0 ) {
@@ -319,11 +321,11 @@ int main(int argc, char *argv[])
                                &Glu, &stat, &info);
 
 			if ( info ) { 
-                            printf("** First factor: info %d, equed %c\n",
-				   info, *equed);
+                            printf("** First factor: info %lld, equed %c\n",
+				   (long long) info, *equed);
                             if ( lwork == -1 ) {
-                                printf("** Estimated memory: %d bytes\n",
-                                        info - n);
+                                printf("** Estimated memory: %lld bytes\n",
+                                        (long long) info - n);
                                 exit(0);
                             }
                         }
@@ -357,14 +359,15 @@ int main(int argc, char *argv[])
 			    
 			    if ( info && info != izero ) {
                                 printf(FMT3, "dgssv",
-				       info, izero, n, nrhs, imat, nfail);
+				       (int) info, izero, n, nrhs, imat, nfail);
 			    } else {
-                                /* Reconstruct matrix from factors and
-	                           compute residual. */
-                                dgst01(m, n, &A, &L, &U, perm_c, perm_r,
+                                /* Reconstruct matrix from factors and compute residual.
+				 * Only compute the leading 'izero' nonzero columns.
+				 */
+                                dgst01(m, izero-1, &A, &L, &U, perm_c, perm_r,
                                          &result[0]);
 				nt = 1;
-				if ( izero == 0 ) {
+				if ( izero == (n+1) ) {
 				    /* Compute residual of the computed
 				       solution. */
 				    dCopy_Dense_Matrix(m, nrhs, rhsb, ldb,
@@ -415,7 +418,7 @@ int main(int argc, char *argv[])
 
 			if ( info && info != izero ) {
 			    printf(FMT3, "dgssvx",
-				   info, izero, n, nrhs, imat, nfail);
+				   (int) info, izero, n, nrhs, imat, nfail);
                             if ( lwork == -1 ) {
                                 printf("** Estimated memory: %.0f bytes\n",
                                         mem_usage.total_needed);
@@ -423,9 +426,10 @@ int main(int argc, char *argv[])
                             }
 			} else {
 			    if ( !prefact ) {
-			    	/* Reconstruct matrix from factors and
-	 			   compute residual. */
-                                dgst01(m, n, &A, &L, &U, perm_c, perm_r,
+			    	/* Reconstruct matrix from factors and compute residual.
+				 * Only compute the leading 'izero' nonzero columns.
+				 */
+                                dgst01(m, izero-1, &A, &L, &U, perm_c, perm_r,
                                          &result[0]);
 				k1 = 0;
 			    } else {
@@ -518,16 +522,16 @@ int main(int argc, char *argv[])
 	Destroy_SuperMatrix_Store(&U);
     }
 
-    return 0;
-}
+    return (nfail == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+} /* end main */
 
-/*  
+/*!
  * Parse command line options to get relaxed snode size, panel size, etc.
  */
 static void
 parse_command_line(int argc, char *argv[], char *matrix_type,
 		   int *n, int *w, int *relax, int *nrhs, int *maxsuper,
-		   int *rowblk, int *colblk, int *lwork, double *u, FILE **fp)
+		   int *rowblk, int *colblk, int_t *lwork, double *u, FILE **fp)
 {
     int c;
     extern char *optarg;

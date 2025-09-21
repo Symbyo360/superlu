@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -18,16 +18,22 @@ at the top-level directory.
  * Last update: July 10, 2015
  *
  */
-#include <unistd.h>
+ 
+/*! \file
+ * \brief SGSSVX to solve systems repeatedly with the same sparsity pattern of matrix A.
+ *
+ * \ingroup Example
+ */
+#include <getopt.h>
 #include "slu_sdefs.h"
 
+void parse_command_line(int argc, char *argv[], int_t *lwork,
+                        float *u, yes_no_t *equil, trans_t *trans);
+			
 int main(int argc, char *argv[])
 {
-/*
- * Purpose
- * =======
- *
- * The driver program SLINSOLX2.
+/*!
+ * \brief The driver program SLINSOLX2.
  *
  * This example illustrates how to use SGSSVX to solve systems repeatedly
  * with the same sparsity pattern of matrix A.
@@ -47,13 +53,13 @@ int main(int argc, char *argv[])
     GlobalLU_t	   Glu; /* facilitate multiple factorizations with 
                            SamePattern_SameRowPerm                  */
     float         *a, *a1;
-    int            *asub, *xa, *asub1, *xa1;
+    int_t          *asub, *xa, *asub1, *xa1;
     int            *perm_r; /* row permutations from partial pivoting */
     int            *perm_c; /* column permutation vector */
     int            *etree;
-    void           *work;
-    int            info, lwork, nrhs, ldx;
-    int            i, j, m, n, nnz;
+    void           *work = NULL;
+    int            m, n, nrhs, ldx;
+    int_t          info, lwork, nnz;
     float         *rhsb, *rhsb1, *rhsx, *xact;
     float         *R, *C;
     float         *ferr, *berr;
@@ -62,8 +68,6 @@ int main(int argc, char *argv[])
     superlu_options_t options;
     SuperLUStat_t stat;
     FILE 	   *fp = stdin;
-
-    extern void    parse_command_line();
 
 #if ( DEBUGlevel>=1 )
     CHECK_MALLOC("Enter main()");
@@ -108,15 +112,15 @@ int main(int argc, char *argv[])
     if ( !(a1 = floatMalloc(nnz)) ) ABORT("Malloc fails for a1[].");
     if ( !(asub1 = intMalloc(nnz)) ) ABORT("Malloc fails for asub1[].");
     if ( !(xa1 = intMalloc(n+1)) ) ABORT("Malloc fails for xa1[].");
-    for (i = 0; i < nnz; ++i) {
+    for (int i = 0; i < nnz; ++i) {
         a1[i] = a[i];
 	asub1[i] = asub[i];
     }
-    for (i = 0; i < n+1; ++i) xa1[i] = xa[i];
+    for (int i = 0; i < n+1; ++i) xa1[i] = xa[i];
     
     sCreate_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_S, SLU_GE);
     Astore = A.Store;
-    printf("Dimension %dx%d; # nonzeros %d\n", A.nrow, A.ncol, Astore->nnz);
+    printf("Dimension %dx%d; # nonzeros %d\n", (int)A.nrow, (int)A.ncol, (int)Astore->nnz);
     
     if ( !(rhsb = floatMalloc(m * nrhs)) ) ABORT("Malloc fails for rhsb[].");
     if ( !(rhsb1 = floatMalloc(m * nrhs)) ) ABORT("Malloc fails for rhsb1[].");
@@ -127,12 +131,12 @@ int main(int argc, char *argv[])
     ldx = n;
     sGenXtrue(n, nrhs, xact, ldx);
     sFillRHS(trans, nrhs, xact, ldx, &A, &B);
-    for (j = 0; j < nrhs; ++j)
-        for (i = 0; i < m; ++i) rhsb1[i+j*m] = rhsb[i+j*m];
+    for (int j = 0; j < nrhs; ++j)
+        for (int i = 0; i < m; ++i) rhsb1[i+j*m] = rhsb[i+j*m];
     
-    if ( !(perm_c = intMalloc(n)) ) ABORT("Malloc fails for perm_c[].");
-    if ( !(perm_r = intMalloc(m)) ) ABORT("Malloc fails for perm_r[].");
-    if ( !(etree = intMalloc(n)) ) ABORT("Malloc fails for etree[].");
+    if ( !(perm_c = int32Malloc(n)) ) ABORT("Malloc fails for perm_c[].");
+    if ( !(perm_r = int32Malloc(m)) ) ABORT("Malloc fails for perm_r[].");
+    if ( !(etree = int32Malloc(n)) ) ABORT("Malloc fails for etree[].");
     if ( !(R = (float *) SUPERLU_MALLOC(A.nrow * sizeof(float))) ) 
         ABORT("SUPERLU_MALLOC fails for R[].");
     if ( !(C = (float *) SUPERLU_MALLOC(A.ncol * sizeof(float))) )
@@ -152,21 +156,22 @@ int main(int argc, char *argv[])
            &L, &U, work, lwork, &B, &X, &rpg, &rcond, ferr, berr,
            &Glu, &mem_usage, &stat, &info);
 
-    printf("First system: sgssvx() returns info %d\n", info);
+    printf("First system: sgssvx() returns info %lld\n", (long long)info);
 
     if ( info == 0 || info == n+1 ) {
 
         /* This is how you could access the solution matrix. */
         float *sol = (float*) ((DNformat*) X.Store)->nzval; 
+        (void)sol;  // suppress unused variable warning
 
 	if ( options.PivotGrowth ) printf("Recip. pivot growth = %e\n", rpg);
 	if ( options.ConditionNumber )
 	    printf("Recip. condition number = %e\n", rcond);
         Lstore = (SCformat *) L.Store;
         Ustore = (NCformat *) U.Store;
-	printf("No of nonzeros in factor L = %d\n", Lstore->nnz);
-    	printf("No of nonzeros in factor U = %d\n", Ustore->nnz);
-    	printf("No of nonzeros in L+U = %d\n", Lstore->nnz + Ustore->nnz - n);
+	printf("No of nonzeros in factor L = %lld\n", (long long) Lstore->nnz);
+    	printf("No of nonzeros in factor U = %lld\n", (long long) Ustore->nnz);
+    	printf("No of nonzeros in L+U = %lld\n", (long long) Lstore->nnz + Ustore->nnz - n);
     	printf("FILL ratio = %.1f\n", (float)(Lstore->nnz + Ustore->nnz - n)/nnz);
 
 	printf("L\\U MB %.3f\ttotal MB needed %.3f\n",
@@ -174,13 +179,13 @@ int main(int argc, char *argv[])
 	if ( options.IterRefine ) {
             printf("Iterative Refinement:\n");
 	    printf("%8s%8s%16s%16s\n", "rhs", "Steps", "FERR", "BERR");
-	    for (i = 0; i < nrhs; ++i)
-	      printf("%8d%8d%16e%16e\n", i+1, stat.RefineSteps, ferr[i], berr[i]);
+	    for (int i = 0; i < nrhs; ++i)
+	      printf("%8d%8d%16e%16e\n", (int)i+1, stat.RefineSteps, ferr[i], berr[i]);
 	}
 	fflush(stdout);
 
     } else if ( info > 0 && lwork == -1 ) {
-        printf("** Estimated memory: %d bytes\n", info - n);
+        printf("** Estimated memory: %lld bytes\n", (long long)info - n);
     }
 
     if ( options.PrintStat ) StatPrint(&stat);
@@ -207,32 +212,33 @@ int main(int argc, char *argv[])
            &L, &U, work, lwork, &B1, &X, &rpg, &rcond, ferr, berr,
            &Glu, &mem_usage, &stat, &info);
 
-    printf("\nSecond system: sgssvx() returns info %d\n", info);
+    printf("\nSecond system: sgssvx() returns info %lld\n", (long long)info);
 
     if ( info == 0 || info == n+1 ) {
 
         /* This is how you could access the solution matrix. */
         float *sol = (float*) ((DNformat*) X.Store)->nzval; 
+        (void)sol;  // suppress unused variable warning
 
 	if ( options.PivotGrowth ) printf("Recip. pivot growth = %e\n", rpg);
 	if ( options.ConditionNumber )
 	    printf("Recip. condition number = %e\n", rcond);
         Lstore = (SCformat *) L.Store;
         Ustore = (NCformat *) U.Store;
-	printf("No of nonzeros in factor L = %d\n", Lstore->nnz);
-    	printf("No of nonzeros in factor U = %d\n", Ustore->nnz);
-    	printf("No of nonzeros in L+U = %d\n", Lstore->nnz + Ustore->nnz - n);
+	printf("No of nonzeros in factor L = %lld\n", (long long) Lstore->nnz);
+    	printf("No of nonzeros in factor U = %lld\n", (long long) Ustore->nnz);
+    	printf("No of nonzeros in L+U = %lld\n", (long long) Lstore->nnz + Ustore->nnz - n);
 	printf("L\\U MB %.3f\ttotal MB needed %.3f\n",
 	       mem_usage.for_lu/1e6, mem_usage.total_needed/1e6);
 	if ( options.IterRefine ) {
             printf("Iterative Refinement:\n");
 	    printf("%8s%8s%16s%16s\n", "rhs", "Steps", "FERR", "BERR");
-	    for (i = 0; i < nrhs; ++i)
-	      printf("%8d%8d%16e%16e\n", i+1, stat.RefineSteps, ferr[i], berr[i]);
+	    for (int i = 0; i < nrhs; ++i)
+	      printf("%8d%8d%16e%16e\n", (int)i+1, stat.RefineSteps, ferr[i], berr[i]);
 	}
 	fflush(stdout);
     } else if ( info > 0 && lwork == -1 ) {
-        printf("** Estimated memory: %d bytes\n", info - n);
+        printf("** Estimated memory: %lld bytes\n", (long long)info - n);
     }
 
     if ( options.PrintStat ) StatPrint(&stat);
@@ -259,14 +265,15 @@ int main(int argc, char *argv[])
 #if ( DEBUGlevel>=1 )
     CHECK_MALLOC("Exit main()");
 #endif
+    return EXIT_SUCCESS;
 }
 
-/*  
- * Parse command line options to get relaxed snode size, panel size, etc.
+/*!
+ * \brief Parse command line options to get relaxed snode size, panel size, etc.
  */
 void
-parse_command_line(int argc, char *argv[], int *lwork,
-                   double *u, yes_no_t *equil, trans_t *trans )
+parse_command_line(int argc, char *argv[], int_t *lwork,
+                   float *u, yes_no_t *equil, trans_t *trans )
 {
     int c;
     extern char *optarg;

@@ -1,28 +1,24 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include "powi.h"
 
-#include "f2c.h"
+#include <math.h>
+#include <stdlib.h>
 
-/* Subroutine */ int dlatm1_slu(integer *mode, doublereal *cond, integer *irsign,
-	 integer *idist, integer *iseed, doublereal *d, integer *n, integer *
+/* Subroutine */ int dlatm1_slu(int *mode, double *cond, int *irsign,
+	 int *idist, int *iseed, double *d, int *n, int *
 	info)
 {
     /* System generated locals */
-    integer i__1, i__2;
-    doublereal d__1;
-
-    /* Builtin functions */
-    double pow_dd(doublereal *, doublereal *), pow_di(doublereal *, integer *)
-	    , log(doublereal), exp(doublereal);
+    int i__1, i__2;
+    double d__1;
 
     /* Local variables */
-    static doublereal temp;
-    static integer i;
-    static doublereal alpha;
-    extern doublereal dlaran_slu(integer *);
-    extern /* Subroutine */ int dlarnv_slu(integer *, integer *, integer *, doublereal *);
+    static double temp;
+    static int i;
+    static double alpha;
+    extern double dlaran_slu(int *);
+    extern /* Subroutine */ int dlarnv_slu(int *, int *, int *, double *);
     extern int input_error(char *, int *);
 
 
@@ -186,12 +182,12 @@ L30:
 L50:
 	d[1] = 1.;
 	if (*n > 1) {
-	    d__1 = -1. / (doublereal) (*n - 1);
-	    alpha = pow_dd(cond, &d__1);
+	    d__1 = -1. / (double) (*n - 1);
+            alpha = pow(*cond, d__1);
 	    i__1 = *n;
 	    for (i = 2; i <= i__1; ++i) {
 		i__2 = i - 1;
-		d[i] = pow_di(&alpha, &i__2);
+		d[i] = powi(alpha, i__2);
 /* L60: */
 	    }
 	}
@@ -203,10 +199,10 @@ L70:
 	d[1] = 1.;
 	if (*n > 1) {
 	    temp = 1. / *cond;
-	    alpha = (1. - temp) / (doublereal) (*n - 1);
+	    alpha = (1. - temp) / (double) (*n - 1);
 	    i__1 = *n;
 	    for (i = 2; i <= i__1; ++i) {
-		d[i] = (doublereal) (*n - i) * alpha + temp;
+		d[i] = (double) (*n - i) * alpha + temp;
 /* L80: */
 	    }
 	}

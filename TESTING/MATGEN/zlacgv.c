@@ -1,6 +1,6 @@
-#include "f2c.h"
+#include "../../SRC/slu_dcomplex.h"
 
-/* Subroutine */ int zlacgv_slu(integer *n, doublecomplex *x, integer *incx)
+/* Subroutine */ int zlacgv_slu(int *n, doublecomplex *x, int *incx)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -35,12 +35,10 @@
    Parameter adjustments   
        Function Body */
     /* System generated locals */
-    integer i__2;
     doublecomplex z__1;
-    /* Builtin functions */
-    void d_cnjg(doublecomplex *, doublecomplex *);
+
     /* Local variables */
-    static integer ioff, i;
+    static int ioff, i;
 
 
 #define X(I) x[(I)-1]
@@ -48,7 +46,6 @@
 
     if (*incx == 1) {
 	for (i = 1; i <= *n; ++i) {
-	    i__2 = i;
 	    d_cnjg(&z__1, &X(i));
 	    X(i).r = z__1.r, X(i).i = z__1.i;
 /* L10: */
@@ -59,7 +56,6 @@
 	    ioff = 1 - (*n - 1) * *incx;
 	}
 	for (i = 1; i <= *n; ++i) {
-	    i__2 = ioff;
 	    d_cnjg(&z__1, &X(ioff));
 	    X(ioff).r = z__1.r, X(ioff).i = z__1.i;
 	    ioff += *incx;

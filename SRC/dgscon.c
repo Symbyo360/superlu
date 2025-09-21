@@ -13,10 +13,11 @@ at the top-level directory.
  * \brief Estimates reciprocal of the condition number of a general matrix
  * 
  * <pre>
- * -- SuperLU routine (version 5.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * July 25, 2015
+ * August 2024
  *
  * Modified from lapack routines DGECON.
  * </pre> 
@@ -37,7 +38,7 @@ at the top-level directory.
  *
  *   DGSCON estimates the reciprocal of the condition number of a general 
  *   real matrix A, in either the 1-norm or the infinity-norm, using   
- *   the LU factorization computed by DGETRF.   *
+ *   the LU factorization computed by DGSTRF.   *
  *
  *   An estimate is obtained for norm(inv(A)), and the reciprocal of the   
  *   condition number is computed as   
@@ -87,7 +88,7 @@ dgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
 
 
     /* Local variables */
-    int    kase, kase1, onenrm, i;
+    int    kase, kase1, onenrm;
     double ainvnm;
     double *work;
     int    *iwork;
@@ -108,8 +109,8 @@ dgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
              U->Stype != SLU_NC || U->Dtype != SLU_D || U->Mtype != SLU_TRU) 
 	*info = -3;
     if (*info != 0) {
-	i = -(*info);
-	input_error("dgscon", &i);
+	int ii = -(*info);
+	input_error("dgscon", &ii);
 	return;
     }
 
@@ -121,7 +122,7 @@ dgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
     }
 
     work = doubleCalloc( 3*L->nrow );
-    iwork = intMalloc( L->nrow );
+    iwork = int32Malloc( L->nrow );
 
 
     if ( !work || !iwork )
@@ -133,8 +134,10 @@ dgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
     else kase1 = 2;
     kase = 0;
 
+    int nrow = L->nrow;
+
     do {
-	dlacon2_(&L->nrow, &work[L->nrow], &work[0], &iwork[0], &ainvnm, &kase, isave);
+	dlacon2_(&nrow, &work[L->nrow], &work[0], &iwork[0], &ainvnm, &kase, isave);
 
 	if (kase == 0) break;
 

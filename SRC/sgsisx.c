@@ -13,10 +13,10 @@ at the top-level directory.
  * \brief Computes an approximate solutions of linear equations A*X=B or A'*X=B
  *
  * <pre>
- * -- SuperLU routine (version 4.2) --
+ * -- SuperLU routine (version 7.0.0) --
  * Lawrence Berkeley National Laboratory.
  * November, 2010
- * August, 2011
+ * August 2024
  * </pre>
  */
 #include "slu_sdefs.h"
@@ -105,7 +105,7 @@ at the top-level directory.
  *			      p = gamma * nnz(A(:,j)).
  *		DROP_AREA:    Variation of ILUTP, for j-th column, use
  *			      nnz(F(:,1:j)) / nnz(A(:,1:j)) to control memory.
- *		DROP_DYNAMIC: Modify the threshold tau during factorizaion:
+ *		DROP_DYNAMIC: Modify the threshold tau during factorization:
  *			      If nnz(L(:,1:j)) / nnz(A(:,1:j)) > gamma
  *				  tau_L(j) := MIN(tau_0, tau_L(j-1) * 2);
  *			      Otherwise
@@ -231,7 +231,7 @@ at the top-level directory.
  *            obtained from MC64.
  *            If MC64 fails, sgsequ() is used to equilibrate the system,
  *            and A is scaled as above, but no permutation is involved.
- *            On exit, A is restored to the orginal row numbering, so
+ *            On exit, A is restored to the original row numbering, so
  *            Dr*A*Dc is returned.
  *
  * perm_c  (input/output) int*
@@ -373,7 +373,7 @@ at the top-level directory.
  * mem_usage (output) mem_usage_t*
  *	   Record the memory usage statistics, consisting of following fields:
  *	   - for_lu (float)
- *	     The amount of space used in bytes for L\U data structures.
+ *	     The amount of space used in bytes for L\\U data structures.
  *	   - total_needed (float)
  *	     The amount of space needed in bytes to perform factorization.
  *	   - expansions (int)
@@ -403,10 +403,10 @@ at the top-level directory.
 void
 sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
        int *etree, char *equed, float *R, float *C,
-       SuperMatrix *L, SuperMatrix *U, void *work, int lwork,
+       SuperMatrix *L, SuperMatrix *U, void *work, int_t lwork,
        SuperMatrix *B, SuperMatrix *X,
        float *recip_pivot_growth, float *rcond,
-       GlobalLU_t *Glu, mem_usage_t *mem_usage, SuperLUStat_t *stat, int *info)
+       GlobalLU_t *Glu, mem_usage_t *mem_usage, SuperLUStat_t *stat, int_t *info)
 {
 
     DNformat  *Bstore, *Xstore;
@@ -417,9 +417,9 @@ sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
     int       colequ, equil, nofact, notran, rowequ, permc_spec, mc64;
     trans_t   trant;
     char      norm[1];
-    int       i, j, info1;
+    int_t     i, j;
     float    amax, anorm, bignum, smlnum, colcnd, rowcnd, rcmax, rcmin;
-    int       relax, panel_size;
+    int       relax, panel_size, info1;
     double    t0;      /* temporary time */
     double    *utime;
 
@@ -441,7 +441,7 @@ sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
     nofact = (options->Fact != FACTORED);
     equil = (options->Equil == YES);
     notran = (options->Trans == NOTRANS);
-    mc64 = (options->RowPerm == LargeDiag_MC64);
+    mc64 = 0;
     if ( nofact ) {
 	*(unsigned char *)equed = 'N';
 	rowequ = FALSE;
@@ -454,12 +454,12 @@ sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
     }
 
     /* Test the input parameters */
-    if (options->Fact != DOFACT && options->Fact != SamePattern &&
-	options->Fact != SamePattern_SameRowPerm &&
-	options->Fact != FACTORED &&
-	options->Trans != NOTRANS && options->Trans != TRANS && 
-	options->Trans != CONJ &&
-	options->Equil != NO && options->Equil != YES)
+    if ( (options->Fact != DOFACT && options->Fact != SamePattern &&
+	  options->Fact != SamePattern_SameRowPerm &&
+	  options->Fact != FACTORED) ||
+	 (options->Trans != NOTRANS && options->Trans != TRANS && 
+	  options->Trans != CONJ) ||
+	 (options->Equil != NO && options->Equil != YES) )
 	*info = -1;
     else if ( A->nrow != A->ncol || A->nrow < 0 ||
 	      (A->Stype != SLU_NC && A->Stype != SLU_NR) ||
@@ -507,8 +507,8 @@ sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
 	}
     }
     if (*info != 0) {
-	i = -(*info);
-	input_error("sgsisx", &i);
+	int ii = -(*info);
+	input_error("sgsisx", &ii);
 	return;
     }
 
@@ -540,47 +540,47 @@ sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
     if ( nofact ) {
 	register int i, j;
 	NCformat *Astore = AA->Store;
-	int nnz = Astore->nnz;
-	int *colptr = Astore->colptr;
-	int *rowind = Astore->rowind;
+	int_t nnz = Astore->nnz;
+	int_t *colptr = Astore->colptr;
+	int_t *rowind = Astore->rowind;
 	float *nzval = (float *)Astore->nzval;
 
 	if ( mc64 ) {
-	    t0 = SuperLU_timer_();
-	    if ((perm = intMalloc(n)) == NULL)
-		ABORT("SUPERLU_MALLOC fails for perm[]");
+	  /*   t0 = SuperLU_timer_(); */
+	  /*   if ((perm = int32Malloc(n)) == NULL) */
+		/* ABORT("SUPERLU_MALLOC fails for perm[]"); */
 
-	    info1 = sldperm(5, n, nnz, colptr, rowind, nzval, perm, R, C);
+	  /*   info1 = sldperm(5, n, nnz, colptr, rowind, nzval, perm, R, C); */
 
-	    if (info1 != 0) { /* MC64 fails, call sgsequ() later */
-		mc64 = 0;
-		SUPERLU_FREE(perm);
-		perm = NULL;
-	    } else {
-	        if ( equil ) {
-	            rowequ = colequ = 1;
-		    for (i = 0; i < n; i++) {
-		        R[i] = exp(R[i]);
-		        C[i] = exp(C[i]);
-		    }
-		    /* scale the matrix */
-		    for (j = 0; j < n; j++) {
-		        for (i = colptr[j]; i < colptr[j + 1]; i++) {
-			    nzval[i] *= R[rowind[i]] * C[j];
-		        }
-		    }
-	            *equed = 'B';
-                }
+	  /*   if (info1 != 0) { /\* MC64 fails, call sgsequ() later *\/ */
+		/* mc64 = 0; */
+		/* SUPERLU_FREE(perm); */
+		/* perm = NULL; */
+	  /*   } else { */
+	  /*       if ( equil ) { */
+	  /*           rowequ = colequ = 1; */
+		/*     for (i = 0; i < n; i++) { */
+		/*         R[i] = exp(R[i]); */
+		/*         C[i] = exp(C[i]); */
+		/*     } */
+		/*     /\* scale the matrix *\/ */
+		/*     for (j = 0; j < n; j++) { */
+		/*         for (i = colptr[j]; i < colptr[j + 1]; i++) { */
+		/* 	    nzval[i] *= R[rowind[i]] * C[j]; */
+		/*         } */
+		/*     } */
+	  /*           *equed = 'B'; */
+    /*             } */
 
-                /* permute the matrix */
-		for (j = 0; j < n; j++) {
-		    for (i = colptr[j]; i < colptr[j + 1]; i++) {
-			/*nzval[i] *= R[rowind[i]] * C[j];*/
-			rowind[i] = perm[rowind[i]];
-		    }
-		}
-	    }
-	    utime[EQUIL] = SuperLU_timer_() - t0;
+    /*             /\* permute the matrix *\/ */
+		/* for (j = 0; j < n; j++) { */
+		/*     for (i = colptr[j]; i < colptr[j + 1]; i++) { */
+		/* 	/\*nzval[i] *= R[rowind[i]] * C[j];*\/ */
+		/* 	rowind[i] = perm[rowind[i]]; */
+		/*     } */
+		/* } */
+	  /*   } */
+	  /*   utime[EQUIL] = SuperLU_timer_() - t0; */
 	}
 
 	if ( mc64==0 && equil ) { /* Only perform equilibration, no row perm */
@@ -631,23 +631,23 @@ sgsisx(superlu_options_t *options, SuperMatrix *A, int *perm_c, int *perm_r,
 	}
 
 	if ( mc64 ) { /* Fold MC64's perm[] into perm_r[]. */
-	    NCformat *Astore = AA->Store;
-	    int nnz = Astore->nnz, *rowind = Astore->rowind;
-	    int *perm_tmp, *iperm;
-	    if ((perm_tmp = intMalloc(2*n)) == NULL)
-		ABORT("SUPERLU_MALLOC fails for perm_tmp[]");
-	    iperm = perm_tmp + n;
-	    for (i = 0; i < n; ++i) perm_tmp[i] = perm_r[perm[i]];
-	    for (i = 0; i < n; ++i) {
-		perm_r[i] = perm_tmp[i];
-		iperm[perm[i]] = i;
-	    }
+	  /*   NCformat *Astore = AA->Store; */
+	  /*   int_t nnz = Astore->nnz, *rowind = Astore->rowind; */
+	  /*   int *perm_tmp, *iperm; */
+	  /*   if ((perm_tmp = int32Malloc(2*n)) == NULL) */
+		/* ABORT("SUPERLU_MALLOC fails for perm_tmp[]"); */
+	  /*   iperm = perm_tmp + n; */
+	  /*   for (i = 0; i < n; ++i) perm_tmp[i] = perm_r[perm[i]]; */
+	  /*   for (i = 0; i < n; ++i) { */
+		/* perm_r[i] = perm_tmp[i]; */
+		/* iperm[perm[i]] = i; */
+	  /*   } */
 
-	    /* Restore A's original row indices. */
-	    for (i = 0; i < nnz; ++i) rowind[i] = iperm[rowind[i]];
+	  /*   /\* Restore A's original row indices. *\/ */
+	  /*   for (i = 0; i < nnz; ++i) rowind[i] = iperm[rowind[i]]; */
 
-	    SUPERLU_FREE(perm); /* MC64 permutation */
-	    SUPERLU_FREE(perm_tmp);
+	  /*   SUPERLU_FREE(perm); /\* MC64 permutation *\/ */
+	  /*   SUPERLU_FREE(perm_tmp); */
 	}
     }
 

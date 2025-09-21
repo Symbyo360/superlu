@@ -1,24 +1,19 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_scomplex.h"
 
-/* Complex */ VOID cdotc_(complex * ret_val, integer *n, complex *cx, integer 
-	*incx, complex *cy, integer *incy)
+/* Complex */ void cdotc_(singlecomplex * ret_val, int *n, singlecomplex *cx, int
+	*incx, singlecomplex *cy, int *incy)
 {
     /* System generated locals */
-    integer i__1, i__2;
-    complex q__1, q__2, q__3;
-
-    /* Builtin functions */
-    void r_cnjg(complex *, complex *);
+    int i__1, i__2;
+    singlecomplex q__1, q__2, q__3;
 
     /* Local variables */
-    static integer i;
-    static complex ctemp;
-    static integer ix, iy;
+    static int i;
+    static singlecomplex ctemp;
+    static int ix, iy;
 
 
 /*     forms the dot product of two vectors, conjugating the first   

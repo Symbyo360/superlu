@@ -13,10 +13,11 @@ at the top-level directory.
  * \brief Estimates reciprocal of the condition number of a general matrix
  * 
  * <pre>
- * -- SuperLU routine (version 5.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * July 25, 2015
+ * August 2024
  *
  * Modified from lapack routines ZGECON.
  * </pre> 
@@ -37,7 +38,7 @@ at the top-level directory.
  *
  *   ZGSCON estimates the reciprocal of the condition number of a general 
  *   real matrix A, in either the 1-norm or the infinity-norm, using   
- *   the LU factorization computed by ZGETRF.   *
+ *   the LU factorization computed by ZGSTRF.   *
  *
  *   An estimate is obtained for norm(inv(A)), and the reciprocal of the   
  *   condition number is computed as   
@@ -87,7 +88,7 @@ zgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
 
 
     /* Local variables */
-    int    kase, kase1, onenrm, i;
+    int    kase, kase1, onenrm;
     double ainvnm;
     doublecomplex *work;
     int    isave[3];
@@ -107,8 +108,8 @@ zgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
              U->Stype != SLU_NC || U->Dtype != SLU_Z || U->Mtype != SLU_TRU) 
 	*info = -3;
     if (*info != 0) {
-	i = -(*info);
-	input_error("zgscon", &i);
+	int ii = -(*info);
+	input_error("zgscon", &ii);
 	return;
     }
 
@@ -131,8 +132,10 @@ zgscon(char *norm, SuperMatrix *L, SuperMatrix *U,
     else kase1 = 2;
     kase = 0;
 
+    int nrow = L->nrow;
+
     do {
-	zlacon2_(&L->nrow, &work[L->nrow], &work[0], &ainvnm, &kase, isave);
+	zlacon2_(&nrow, &work[L->nrow], &work[0], &ainvnm, &kase, isave);
 
 	if (kase == 0) break;
 

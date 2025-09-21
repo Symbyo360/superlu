@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -9,14 +9,15 @@ The source code is distributed under BSD license, see the file License.txt
 at the top-level directory.
 */
 
-/*! @file sitersol1.c
- * \brief Example #2 showing how to use ILU to precondition GMRES
- *
- * <pre>
+/*
  * -- SuperLU routine (version 5.0) --
  * Lawrence Berkeley National Laboratory
  * November, 2010
  * August, 2011
+ */
+
+/*! \file
+ * \brief Example #2 showing how to use ILU to precondition GMRES
  *
  * This example shows that ILU is computed from the equilibrated matrix,
  * but the preconditioned GMRES is applied to the original system.
@@ -34,10 +35,9 @@ at the top-level directory.
  *   1) Apply preconditioner M^{-1} = Dc*Pc^T*U^{-1}*L^{-1}*Pr*Dr
  *   2) Matrix-vector multiplication: w = A*v
  *
- * </pre>
+ * \ingroup Example
  */
 
-#include <unistd.h>
 #include "slu_sdefs.h"
 
 char *GLOBAL_EQUED;
@@ -48,10 +48,16 @@ SuperMatrix *GLOBAL_A, *GLOBAL_A_ORIG, *GLOBAL_L, *GLOBAL_U;
 SuperLUStat_t *GLOBAL_STAT;
 mem_usage_t   *GLOBAL_MEM_USAGE;
 
-void spsolve(int n,
-                  float x[], /* solution */
-                  float y[]  /* right-hand side */
-)
+/*!
+ * \brief Performs SGSISX with original matrix A.
+ *
+ * See documentation of sgsisx for more details.
+ *
+ * \param [in] n     Dimension of matrices
+ * \param [out] x    Solution
+ * \param [in,out] y Right-hand side
+ */
+void spsolve(int n, float x[], float y[])
 {
     SuperMatrix *A = GLOBAL_A, *L = GLOBAL_L, *U = GLOBAL_U;
     SuperLUStat_t *stat = GLOBAL_STAT;
@@ -60,7 +66,7 @@ void spsolve(int n,
     float *R = GLOBAL_R, *C = GLOBAL_C;
     superlu_options_t *options = GLOBAL_OPTIONS;
     mem_usage_t  *mem_usage = GLOBAL_MEM_USAGE;
-    int info;
+    int_t info;
     static DNformat X, Y;
     static SuperMatrix XX = {SLU_DN, SLU_S, SLU_GE, 1, 1, &X};
     static SuperMatrix YY = {SLU_DN, SLU_S, SLU_GE, 1, 1, &Y};
@@ -81,6 +87,18 @@ void spsolve(int n,
 #endif
 }
 
+/*!
+ * \brief Performs matrix-vector multiplication sp_sgemv with original matrix A.
+ *
+ * The operations is y := alpha*A*x + beta*y. See documentation of sp_sgemv
+ * for further details.
+ *
+ * \param [in] alpha Scalar factor for A*x
+ * \param [in] x Vector to multiply with A
+ * \param [in] beta Scalar factor for y
+ * \param [in,out] y Vector to add to to matrix-vector multiplication and
+ *                   storage for result.
+ */
 void smatvec_mult(float alpha, float x[], float beta, float y[])
 {
     SuperMatrix *A = GLOBAL_A_ORIG;
@@ -100,7 +118,6 @@ int main(int argc, char *argv[])
     extern int sfill_diag(int n, NCformat *Astore);
 
     char     equed[1] = {'B'};
-    yes_no_t equil;
     trans_t  trans;
     SuperMatrix A, AA, L, U;
     SuperMatrix B, X;
@@ -110,24 +127,22 @@ int main(int argc, char *argv[])
     GlobalLU_t	   Glu; /* facilitate multiple factorizations with 
                            SamePattern_SameRowPerm                  */
     float   *a, *a_orig;
-    int      *asub, *xa, *asub_orig, *xa_orig;
+    int_t    *asub, *xa, *asub_orig, *xa_orig;
     int      *etree;
     int      *perm_c; /* column permutation vector */
     int      *perm_r; /* row permutations from partial pivoting */
-    int      nrhs, ldx, lwork, info, m, n, nnz;
+    int      nrhs, ldx, m, n;
+    int_t    lwork, info, nnz;
     float   *rhsb, *rhsx, *xact;
     float   *work = NULL;
     float   *R, *C;
-    float   u, rpg, rcond;
+    float   rpg, rcond;
     float zero = 0.0;
-    float one = 1.0;
     mem_usage_t   mem_usage;
     superlu_options_t options;
     SuperLUStat_t stat;
     FILE    *fp = stdin;
 
-    int restrt, iter, maxit, i;
-    double resid;
     float *x, *b;
 
 #ifdef DEBUG
@@ -181,7 +196,7 @@ int main(int argc, char *argv[])
 		"-r -rb:\n\t[INPUT] is a Rutherford-Boeing format matrix.\n"
 		"-t -triplet:\n\t[INPUT] is a triplet format matrix.\n",
 		argv[0]);
-	return 0;
+        return EXIT_FAILURE;
     }
     else
     {
@@ -204,7 +219,7 @@ int main(int argc, char *argv[])
 		break;
 	    default:
 		printf("Unrecognized format.\n");
-		return 0;
+		return EXIT_FAILURE;
 	}
     }
 
@@ -212,7 +227,7 @@ int main(int argc, char *argv[])
                                 SLU_NC, SLU_S, SLU_GE);
     Astore = A.Store;
     sfill_diag(n, Astore);
-    printf("Dimension %dx%d; # nonzeros %d\n", A.nrow, A.ncol, Astore->nnz);
+    printf("Dimension %dx%d; # nonzeros %d\n", (int)A.nrow, (int)A.ncol, (int)Astore->nnz);
     fflush(stdout);
 
     /* Make a copy of the original matrix. */
@@ -220,11 +235,11 @@ int main(int argc, char *argv[])
     a_orig = floatMalloc(nnz);
     asub_orig = intMalloc(nnz);
     xa_orig = intMalloc(n+1);
-    for (i = 0; i < nnz; ++i) {
+    for (int i = 0; i < nnz; ++i) {
 	a_orig[i] = ((float *)Astore->nzval)[i];
 	asub_orig[i] = Astore->rowind[i];
     }
-    for (i = 0; i <= n; ++i) xa_orig[i] = Astore->colptr[i];
+    for (int i = 0; i <= n; ++i) xa_orig[i] = Astore->colptr[i];
     sCreate_CompCol_Matrix(&AA, m, n, nnz, a_orig, asub_orig, xa_orig,
 			   SLU_NC, SLU_S, SLU_GE);
     
@@ -238,9 +253,9 @@ int main(int argc, char *argv[])
     sGenXtrue(n, nrhs, xact, ldx);
     sFillRHS(trans, nrhs, xact, ldx, &A, &B);
 
-    if ( !(etree = intMalloc(n)) ) ABORT("Malloc fails for etree[].");
-    if ( !(perm_r = intMalloc(m)) ) ABORT("Malloc fails for perm_r[].");
-    if ( !(perm_c = intMalloc(n)) ) ABORT("Malloc fails for perm_c[].");
+    if ( !(etree = int32Malloc(n)) ) ABORT("Malloc fails for etree[].");
+    if ( !(perm_r = int32Malloc(m)) ) ABORT("Malloc fails for perm_r[].");
+    if ( !(perm_c = int32Malloc(n)) ) ABORT("Malloc fails for perm_c[].");
     if ( !(R = (float *) SUPERLU_MALLOC(A.nrow * sizeof(float))) )
 	ABORT("SUPERLU_MALLOC fails for R[].");
     if ( !(C = (float *) SUPERLU_MALLOC(A.ncol * sizeof(float))) )
@@ -263,9 +278,9 @@ int main(int argc, char *argv[])
 
     /* Set RHS for GMRES. */
     if (!(b = floatMalloc(m))) ABORT("Malloc fails for b[].");
-    for (i = 0; i < m; i++) b[i] = rhsb[i];
+    for (int i = 0; i < m; i++) b[i] = rhsb[i];
 
-    printf("sgsisx(): info %d, equed %c\n", info, equed[0]);
+    printf("sgsisx(): info %lld, equed %c\n", (long long)info, equed[0]);
     if (info > 0 || rcond < 1e-8 || rpg > 1e8)
 	printf("WARNING: This preconditioner might be unstable.\n");
 
@@ -275,16 +290,16 @@ int main(int argc, char *argv[])
 	if ( options.ConditionNumber == YES )
 	    printf("Recip. condition number = %e\n", rcond);
     } else if ( info > 0 && lwork == -1 ) {
-	printf("** Estimated memory: %d bytes\n", info - n);
+	printf("** Estimated memory: %lld bytes\n", (long long)info - n);
     }
 
     Lstore = (SCformat *) L.Store;
     Ustore = (NCformat *) U.Store;
-    printf("n(A) = %d, nnz(A) = %d\n", n, Astore->nnz);
-    printf("No of nonzeros in factor L = %d\n", Lstore->nnz);
-    printf("No of nonzeros in factor U = %d\n", Ustore->nnz);
-    printf("No of nonzeros in L+U = %d\n", Lstore->nnz + Ustore->nnz - n);
-    printf("Fill ratio: nnz(F)/nnz(A) = %.3f\n",
+    printf("n(A) = %d, nnz(A) = %lld\n", n, (long long)Astore->nnz);
+    printf("No of nonzeros in factor L = %lld\n", (long long)Lstore->nnz);
+    printf("No of nonzeros in factor U = %lld\n", (long long)Ustore->nnz);
+    printf("No of nonzeros in L+U = %lld\n", (long long)Lstore->nnz + Ustore->nnz - n);
+    printf("Fill ratio: nnz(F)/nnz(A) = %.1f\n",
 	    ((double)(Lstore->nnz) + (double)(Ustore->nnz) - (double)n)
 	    / (double)Astore->nnz);
     printf("L\\U MB %.3f\ttotal MB needed %.3f\n",
@@ -311,22 +326,21 @@ int main(int argc, char *argv[])
     options.ConditionNumber = NO;
 
     /* Set the variables used by GMRES. */
-    restrt = SUPERLU_MIN(n / 3 + 1, 50);
-    maxit = 1000;
-    iter = maxit;
-    resid = 1e-8;
+    int restrt = SUPERLU_MIN(n / 3 + 1, 50);
+    int maxit = 1000;
+    int iter = maxit;
+    double resid = 1e-8;
     if (!(x = floatMalloc(n))) ABORT("Malloc fails for x[].");
 
     if (info <= n + 1)
     {
 	int i_1 = 1;
 	double maxferr = 0.0, nrmA, nrmB, res, t;
-        float temp;
 	extern float snrm2_(int *, float [], int *);
 	extern void saxpy_(int *, float *, float [], int *, float [], int *);
 
 	/* Initial guess */
-	for (i = 0; i < n; i++) x[i] = zero;
+	for (int i = 0; i < n; i++) x[i] = zero;
 
 	t = SuperLU_timer_();
 
@@ -336,7 +350,8 @@ int main(int argc, char *argv[])
 	t = SuperLU_timer_() - t;
 
 	/* Output the result. */
-	nrmA = snrm2_(&(Astore->nnz), (float *)((DNformat *)A.Store)->nzval,
+	int nnz32 = Astore->nnz;
+	nrmA = snrm2_(&nnz32, (float *)((NCformat *)A.Store)->nzval,
 		&i_1);
 	nrmB = snrm2_(&m, b, &i_1);
 	sp_sgemv("N", -1.0, &A, x, 1, 1.0, b, 1);
@@ -353,7 +368,7 @@ int main(int argc, char *argv[])
 	printf("iteration: %d\nresidual: %.1e\nGMRES time: %.2f seconds.\n",
 		iter, resid, t);
 
-	for (i = 0; i < m; i++) {
+	for (int i = 0; i < m; i++) {
 	    maxferr = SUPERLU_MAX(maxferr, fabs(x[i] - xact[i]));
         }
 	printf("||X-X_true||_oo = %.1e\n", maxferr);
@@ -390,5 +405,5 @@ int main(int argc, char *argv[])
     CHECK_MALLOC("Exit main()");
 #endif
 
-    return 0;
+    return EXIT_SUCCESS;
 }

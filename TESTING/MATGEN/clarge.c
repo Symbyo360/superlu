@@ -1,42 +1,36 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_scomplex.h"
+#include "../../SRC/slu_sdefs.h"
+#include "../../SRC/slu_cdefs.h"
 
 /* Table of constant values */
 
-static complex c_b1 = {0.f,0.f};
-static complex c_b2 = {1.f,0.f};
-static integer c__3 = 3;
-static integer c__1 = 1;
+static singlecomplex c_b1 = {0.f,0.f};
+static singlecomplex c_b2 = {1.f,0.f};
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int clarge_slu(integer *n, complex *a, integer *lda, integer *
-	iseed, complex *work, integer *info)
+/* Subroutine */ int clarge_slu(int *n, singlecomplex *a, int *lda, int *
+	iseed, singlecomplex *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1;
-    doublereal d__1;
-    complex q__1;
-
-    /* Builtin functions */
-    double c_abs(complex *);
-    void c_div(complex *, complex *, complex *);
+    int a_dim1, a_offset, i__1;
+    double d__1;
+    singlecomplex q__1;
 
     /* Local variables */
-    static integer i;
-    extern /* Subroutine */ int cgerc_(integer *, integer *, complex *, 
-	    complex *, integer *, complex *, integer *, complex *, integer *),
-	     cscal_(integer *, complex *, complex *, integer *), cgemv_(char *
-	    , integer *, integer *, complex *, complex *, integer *, complex *
-	    , integer *, complex *, complex *, integer *);
-    extern real scnrm2_(integer *, complex *, integer *);
-    static complex wa, wb;
-    static real wn;
-    extern /* Subroutine */ int clarnv_slu(integer *, integer *, integer *, complex *);
+    static int i;
+    extern /* Subroutine */ int cgerc_(int *, int *, singlecomplex *,
+	    singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, int *),
+	cscal_(int *, singlecomplex *, singlecomplex *, int *);
+    extern float scnrm2_(int *, singlecomplex *, int *);
+    static singlecomplex wa, wb;
+    static float wn;
+    extern /* Subroutine */ int clarnv_slu(int *, int *, int *, singlecomplex *);
     extern int input_error(char *, int *);
-    static complex tau;
+    static singlecomplex tau;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -95,7 +89,7 @@ static integer c__1 = 1;
     *info = 0;
     if (*n < 0) {
 	*info = -1;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -3;
     }
     if (*info < 0) {
@@ -137,7 +131,7 @@ static integer c__1 = 1;
 	cgemv_("Conjugate transpose", &i__1, n, &c_b2, &a[i + a_dim1], lda, &
 		work[1], &c__1, &c_b1, &work[*n + 1], &c__1);
 	i__1 = *n - i + 1;
-	q__1.r = -(doublereal)tau.r, q__1.i = -(doublereal)tau.i;
+	q__1.r = -(double)tau.r, q__1.i = -(double)tau.i;
 	cgerc_(&i__1, n, &q__1, &work[1], &c__1, &work[*n + 1], &c__1, &a[i + 
 		a_dim1], lda);
 
@@ -147,7 +141,7 @@ static integer c__1 = 1;
 	cgemv_("No transpose", n, &i__1, &c_b2, &a[i * a_dim1 + 1], lda, &
 		work[1], &c__1, &c_b1, &work[*n + 1], &c__1);
 	i__1 = *n - i + 1;
-	q__1.r = -(doublereal)tau.r, q__1.i = -(doublereal)tau.i;
+	q__1.r = -(double)tau.r, q__1.i = -(double)tau.i;
 	cgerc_(n, &i__1, &q__1, &work[*n + 1], &c__1, &work[1], &c__1, &a[i * 
 		a_dim1 + 1], lda);
 /* L10: */

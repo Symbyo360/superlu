@@ -1,41 +1,33 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_ddefs.h"
 
 /* Table of constant values */
 
-static integer c__3 = 3;
-static integer c__1 = 1;
-static doublereal c_b8 = 1.;
-static doublereal c_b10 = 0.;
+static int c__3 = 3;
+static int c__1 = 1;
+static double c_b8 = 1.;
+static double c_b10 = 0.;
 
-/* Subroutine */ int dlarge_slu(integer *n, doublereal *a, integer *lda, integer 
-	*iseed, doublereal *work, integer *info)
+/* Subroutine */ int dlarge_slu(int *n, double *a, int *lda, int
+	*iseed, double *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1;
-    doublereal d__1;
-
-    /* Builtin functions */
-    double d_sign(doublereal *, doublereal *);
+    int a_dim1, a_offset, i__1;
+    double d__1;
 
     /* Local variables */
-    extern /* Subroutine */ int dger_(integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    integer *);
-    extern doublereal dnrm2_(integer *, doublereal *, integer *);
-    static integer i;
-    extern /* Subroutine */ int dscal_(integer *, doublereal *, doublereal *, 
-	    integer *), dgemv_(char *, integer *, integer *, doublereal *, 
-	    doublereal *, integer *, doublereal *, integer *, doublereal *, 
-	    doublereal *, integer *);
-    static doublereal wa, wb, wn;
-    extern /* Subroutine */ int dlarnv_slu(integer *, integer *, integer *, doublereal *);
+    extern /* Subroutine */ int dger_(int *, int *, double *,
+	    double *, int *, double *, int *, double *,
+	    int *);
+    extern double dnrm2_(int *, double *, int *);
+    static int i;
+    extern /* Subroutine */ int dscal_(int *, double *, double *, int *);
+    static double wa, wb, wn;
+    extern /* Subroutine */ int dlarnv_slu(int *, int *, int *, double *);
     extern int input_error(char *, int *);
-    static doublereal tau;
+    static double tau;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0)   
@@ -94,7 +86,7 @@ static doublereal c_b10 = 0.;
     *info = 0;
     if (*n < 0) {
 	*info = -1;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -3;
     }
     if (*info < 0) {
@@ -113,7 +105,7 @@ static doublereal c_b10 = 0.;
 	dlarnv_slu(&c__3, &iseed[1], &i__1, &work[1]);
 	i__1 = *n - i + 1;
 	wn = dnrm2_(&i__1, &work[1], &c__1);
-	wa = d_sign(&wn, &work[1]);
+	wa = copysign(wn, work[1]);
 	if (wn == 0.) {
 	    tau = 0.;
 	} else {

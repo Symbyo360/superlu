@@ -58,7 +58,7 @@ at the top-level directory.
  * Local parameters
  * ================
  *   nseg: no of segments in current U[*,j]
- *   jsuper: jsuper=EMPTY if column j does not belong to the same
+ *   jsuper: jsuper=SLU_EMPTY if column j does not belong to the same
  *	supernode as j-1. Otherwise, jsuper=nsuper.
  *
  *   marker2: A-row --> A-row/col (0/1)
@@ -81,26 +81,27 @@ zcolumn_dfs(
 	   int        *lsub_col, /* in - defines the RHS vector to start the dfs */
 	   int        *segrep,   /* modified - with new segments appended */
 	   int        *repfnz,   /* modified */
-	   int        *xprune,   /* modified */
+	   int_t      *xprune,   /* modified */
 	   int        *marker,   /* modified */
 	   int        *parent,	 /* working array */
-	   int        *xplore,   /* working array */
+	   int_t      *xplore,   /* working array */
 	   GlobalLU_t *Glu       /* modified */
 	   )
 {
 
-    int     jcolp1, jcolm1, jsuper, nsuper, nextl;
-    int     k, krep, krow, kmark, kperm;
+    int     jcolp1, jcolm1, jsuper, nsuper;
+    int     krep, krow, kmark, kperm;
     int     *marker2;           /* Used for small panel LU */
     int	    fsupc;		/* First column of a snode */
     int     myfnz;		/* First nonz column of a U-segment */
     int	    chperm, chmark, chrep, kchild;
-    int     xdfs, maxdfs, kpar, oldrep;
-    int     jptr, jm1ptr;
-    int     ito, ifrom, istop;	/* Used to compress row subscripts */
-    int     mem_error;
-    int     *xsup, *supno, *lsub, *xlsub;
-    int     nzlmax;
+    int_t   xdfs, maxdfs, nextl, k;
+    int     kpar, oldrep;
+    int_t   jptr, jm1ptr;
+    int_t   ito, ifrom, istop;	/* Used to compress row subscripts */
+    int     *xsup, *supno;
+    int_t   *lsub, *xlsub;
+    int_t   nzlmax, mem_error;
     int     maxsuper;
     
     xsup    = Glu->xsup;
@@ -118,10 +119,10 @@ zcolumn_dfs(
     marker2 = &marker[2*m];
 
     /* For each nonzero in A[*,jcol] do dfs */
-    for (k = 0; lsub_col[k] != EMPTY; k++) {
+    for (k = 0; lsub_col[k] != SLU_EMPTY; k++) {
 
 	krow = lsub_col[k];
-    	lsub_col[k] = EMPTY;
+    	lsub_col[k] = SLU_EMPTY;
 	kmark = marker2[krow];    	
 
 	/* krow was visited before, go to the next nonz */
@@ -133,14 +134,14 @@ zcolumn_dfs(
 	marker2[krow] = jcol;
 	kperm = perm_r[krow];
 
-   	if ( kperm == EMPTY ) {
+   	if ( kperm == SLU_EMPTY ) {
 	    lsub[nextl++] = krow; 	/* krow is indexed into A */
 	    if ( nextl >= nzlmax ) {
 		mem_error = zLUMemXpand(jcol, nextl, LSUB, &nzlmax, Glu);
 		if ( mem_error ) return (mem_error);
 		lsub = Glu->lsub;
 	    }
-            if ( kmark != jcolm1 ) jsuper = EMPTY;/* Row index subset testing */
+            if ( kmark != jcolm1 ) jsuper = SLU_EMPTY;/* Row index subset testing */
   	} else {
 	    /*	krow is in U: if its supernode-rep krep
 	     *	has been explored, update repfnz[*]
@@ -148,13 +149,13 @@ zcolumn_dfs(
 	    krep = xsup[supno[kperm]+1] - 1;
 	    myfnz = repfnz[krep];
 
-	    if ( myfnz != EMPTY ) {	/* Visited before */
+	    if ( myfnz != SLU_EMPTY ) {	/* Visited before */
 	    	if ( myfnz > kperm ) repfnz[krep] = kperm;
 		/* continue; */
 	    }
 	    else {
 		/* Otherwise, perform dfs starting at krep */
-		oldrep = EMPTY;
+		oldrep = SLU_EMPTY;
 	 	parent[krep] = oldrep;
 	  	repfnz[krep] = kperm;
 		xdfs = xlsub[krep];
@@ -175,7 +176,7 @@ zcolumn_dfs(
 		   	    chperm = perm_r[kchild];
 
 		   	    /* Case kchild is in L: place it in L[*,k] */
-		   	    if ( chperm == EMPTY ) {
+		   	    if ( chperm == SLU_EMPTY ) {
 			    	lsub[nextl++] = kchild;
 				if ( nextl >= nzlmax ) {
 				    mem_error =
@@ -183,7 +184,7 @@ zcolumn_dfs(
 				    if ( mem_error ) return (mem_error);
 				    lsub = Glu->lsub;
 				}
-				if ( chmark != jcolm1 ) jsuper = EMPTY;
+				if ( chmark != jcolm1 ) jsuper = SLU_EMPTY;
 			    } else {
 		    	    	/* Case kchild is in U: 
 				 *   chrep = its supernode-rep. If its rep has 
@@ -191,7 +192,7 @@ zcolumn_dfs(
 			         */
 		   	    	chrep = xsup[supno[chperm]+1] - 1;
 		   		myfnz = repfnz[chrep];
-		   		if ( myfnz != EMPTY ) { /* Visited before */
+		   		if ( myfnz != SLU_EMPTY ) { /* Visited before */
 				    if ( myfnz > chperm )
      				  	repfnz[chrep] = chperm;
 				} else {
@@ -218,12 +219,12 @@ zcolumn_dfs(
 		    segrep[*nseg] = krep;
 		    ++(*nseg);
 		    kpar = parent[krep]; /* Pop from stack, mimic recursion */
-		    if ( kpar == EMPTY ) break; /* dfs done */
+		    if ( kpar == SLU_EMPTY ) break; /* dfs done */
 		    krep = kpar;
 		    xdfs = xplore[krep];
 		    maxdfs = xprune[krep];
 
-		} while ( kpar != EMPTY ); 	/* Until empty stack */
+		} while ( kpar != SLU_EMPTY ); 	/* Until empty stack */
 
 	    } /* else */
 
@@ -240,18 +241,18 @@ zcolumn_dfs(
 	jm1ptr = xlsub[jcolm1];
 
 #ifdef T2_SUPER
-	if ( (nextl-jptr != jptr-jm1ptr-1) ) jsuper = EMPTY;
+	if ( (nextl-jptr != jptr-jm1ptr-1) ) jsuper = SLU_EMPTY;
 #endif
 	/* Make sure the number of columns in a supernode doesn't
 	   exceed threshold. */
-	if ( jcol - fsupc >= maxsuper ) jsuper = EMPTY;
+	if ( jcol - fsupc >= maxsuper ) jsuper = SLU_EMPTY;
 
 	/* If jcol starts a new supernode, reclaim storage space in
 	 * lsub from the previous supernode. Note we only store
 	 * the subscript set of the first and last columns of
    	 * a supernode. (first for num values, last for pruning)
 	 */
-	if ( jsuper == EMPTY ) {	/* starts a new supernode */
+	if ( jsuper == SLU_EMPTY ) {	/* starts a new supernode */
 	    if ( (fsupc < jcolm1-1) ) {	/* >= 3 columns in nsuper */
 #ifdef CHK_COMPRESS
 		printf("  Compress lsub[] at super %d-%d\n", fsupc, jcolm1);

@@ -1,21 +1,17 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
-
-doublereal slatm3_slu(integer *m, integer *n, integer *i, integer *j, integer *
-	isub, integer *jsub, integer *kl, integer *ku, integer *idist, 
-	integer *iseed, real *d, integer *igrade, real *dl, real *dr, integer 
-	*ipvtng, integer *iwork, real *sparse)
+double slatm3_slu(int *m, int *n, int *i, int *j, int *
+	isub, int *jsub, int *kl, int *ku, int *idist,
+	int *iseed, float *d, int *igrade, float *dl, float *dr, int
+	*ipvtng, int *iwork, float *sparse)
 {
     /* System generated locals */
-    real ret_val;
+    float ret_val;
 
     /* Local variables */
-    static real temp;
-    extern doublereal dlaran_sluslu(integer *), slarnd_slu(integer *, integer *);
+    static float temp;
+    extern double dlaran_sluslu(int *), slarnd_slu(int *, int *);
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   

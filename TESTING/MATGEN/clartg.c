@@ -1,7 +1,7 @@
-#include "f2c.h"
+#include <math.h>
+#include "../../SRC/slu_scomplex.h"
 
-/* Subroutine */ int clartg_slu(complex *f, complex *g, real *cs, complex *sn, 
-	complex *r)
+/* Subroutine */ int clartg_slu(singlecomplex *f, singlecomplex *g, float *cs, singlecomplex *sn, singlecomplex *r)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -49,15 +49,13 @@
 
        [ 25 or 38 ops for main paths ] */
     /* System generated locals */
-    real r__1, r__2;
-    doublereal d__1;
-    complex q__1, q__2, q__3;
-    /* Builtin functions */
-    void r_cnjg(complex *, complex *);
-    double c_abs(complex *), r_imag(complex *), sqrt(doublereal);
+    float r__1, r__2;
+    double d__1;
+    singlecomplex q__1, q__2, q__3;
+
     /* Local variables */
-    static real d, f1, f2, g1, g2, fa, ga, di;
-    static complex fs, gs, ss;
+    static float d, f1, f2, g1, g2, fa, ga, di;
+    static singlecomplex fs, gs, ss;
 
 
     if (g->r == 0.f && g->i == 0.f) {
@@ -78,8 +76,8 @@
            R = G */
 
     } else {
-	f1 = (r__1 = f->r, dabs(r__1)) + (r__2 = r_imag(f), dabs(r__2));
-	g1 = (r__1 = g->r, dabs(r__1)) + (r__2 = r_imag(g), dabs(r__2));
+	f1 = (r__1 = f->r, fabs(r__1)) + (r__2 = r_imag(f), fabs(r__2));
+	g1 = (r__1 = g->r, fabs(r__1)) + (r__2 = r_imag(g), fabs(r__2));
 	if (f1 >= g1) {
 	    q__1.r = g->r / f1, q__1.i = g->i / f1;
 	    gs.r = q__1.r, gs.i = q__1.i;

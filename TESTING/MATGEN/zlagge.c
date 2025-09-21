@@ -1,43 +1,37 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_dcomplex.h"
+#include "../../SRC/slu_ddefs.h"
+#include "../../SRC/slu_zdefs.h"
 
 /* Table of constant values */
 
 static doublecomplex c_b1 = {0.,0.};
 static doublecomplex c_b2 = {1.,0.};
-static integer c__3 = 3;
-static integer c__1 = 1;
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int zlagge_slu(integer *m, integer *n, integer *kl, integer *ku,
-	 doublereal *d, doublecomplex *a, integer *lda, integer *iseed, 
-	doublecomplex *work, integer *info)
+/* Subroutine */ int zlagge_slu(int *m, int *n, int *kl, int *ku,
+	 double *d, doublecomplex *a, int *lda, int *iseed,
+	doublecomplex *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    doublereal d__1;
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    double d__1;
     doublecomplex z__1;
 
-    /* Builtin functions */
-    double z_abs(doublecomplex *);
-    void z_div(doublecomplex *, doublecomplex *, doublecomplex *);
-
     /* Local variables */
-    static integer i, j;
-    extern /* Subroutine */ int zgerc_(integer *, integer *, doublecomplex *, 
-	    doublecomplex *, integer *, doublecomplex *, integer *, 
-	    doublecomplex *, integer *), zscal_(integer *, doublecomplex *, 
-	    doublecomplex *, integer *), zgemv_(char *, integer *, integer *, 
-	    doublecomplex *, doublecomplex *, integer *, doublecomplex *, 
-	    integer *, doublecomplex *, doublecomplex *, integer *);
-    extern doublereal dznrm2_(integer *, doublecomplex *, integer *);
+    static int i, j;
+    extern /* Subroutine */ int zgerc_(int *, int *, doublecomplex *,
+	    doublecomplex *, int *, doublecomplex *, int *,
+	    doublecomplex *, int *), zscal_(int *, doublecomplex *,
+					    doublecomplex *, int *);
+    extern double dznrm2_(int *, doublecomplex *, int *);
     static doublecomplex wa, wb;
-    static doublereal wn;
-    extern /* Subroutine */ int zlacgv_slu(integer *, doublecomplex *, integer *), zlarnv_slu(integer *, 
-	    integer *, integer *, doublecomplex *);
+    static double wn;
+    extern /* Subroutine */ int zlacgv_slu(int *, doublecomplex *, int *), zlarnv_slu(int *,
+	    int *, int *, doublecomplex *);
     extern int input_error(char *, int *);
     static doublecomplex tau;
 
@@ -120,7 +114,7 @@ static integer c__1 = 1;
 	*info = -3;
     } else if (*ku < 0 || *ku > *n - 1) {
 	*info = -4;
-    } else if (*lda < max(1,*m)) {
+    } else if (*lda < SUPERLU_MAX(1,*m)) {
 	*info = -7;
     }
     if (*info < 0) {
@@ -141,7 +135,7 @@ static integer c__1 = 1;
 	}
 /* L20: */
     }
-    i__1 = min(*m,*n);
+    i__1 = SUPERLU_MIN(*m,*n);
     for (i = 1; i <= i__1; ++i) {
 	i__2 = i + i * a_dim1;
 	i__3 = i;
@@ -151,7 +145,7 @@ static integer c__1 = 1;
 
 /*     pre- and post-multiply A by random unitary matrices */
 
-    for (i = min(*m,*n); i >= 1; --i) {
+    for (i = SUPERLU_MIN(*m,*n); i >= 1; --i) {
 	if (i < *m) {
 
 /*           generate random reflection */
@@ -237,7 +231,7 @@ ht */
 
    Computing MAX */
     i__2 = *m - 1 - *kl, i__3 = *n - 1 - *ku;
-    i__1 = max(i__2,i__3);
+    i__1 = SUPERLU_MAX(i__2,i__3);
     for (i = 1; i <= i__1; ++i) {
 	if (*kl <= *ku) {
 
@@ -246,7 +240,7 @@ L = 0)
 
    Computing MIN */
 	    i__2 = *m - 1 - *kl;
-	    if (i <= min(i__2,*n)) {
+	    if (i <= SUPERLU_MIN(i__2,*n)) {
 
 /*              generate reflection to annihilate A(kl+i+1:m,i
 ) */
@@ -293,7 +287,7 @@ eft */
 
 /* Computing MIN */
 	    i__2 = *n - 1 - *ku;
-	    if (i <= min(i__2,*m)) {
+	    if (i <= SUPERLU_MIN(i__2,*m)) {
 
 /*              generate reflection to annihilate A(i,ku+i+1:n
 ) */
@@ -347,7 +341,7 @@ ight */
 
    Computing MIN */
 	    i__2 = *n - 1 - *ku;
-	    if (i <= min(i__2,*m)) {
+	    if (i <= SUPERLU_MIN(i__2,*m)) {
 
 /*              generate reflection to annihilate A(i,ku+i+1:n
 ) */
@@ -396,7 +390,7 @@ ight */
 
 /* Computing MIN */
 	    i__2 = *m - 1 - *kl;
-	    if (i <= min(i__2,*n)) {
+	    if (i <= SUPERLU_MIN(i__2,*n)) {
 
 /*              generate reflection to annihilate A(kl+i+1:m,i
 ) */

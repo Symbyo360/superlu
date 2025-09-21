@@ -1,7 +1,7 @@
-#include "f2c.h"
+#include "../../SRC/slu_ddefs.h"
 
-/* Subroutine */ int dlarnv_slu(integer *idist, integer *iseed, integer *n, 
-	doublereal *x)
+/* Subroutine */ int dlarnv_slu(int *idist, int *iseed, int *n,
+	double *x)
 {
 /*  -- LAPACK auxiliary routine (version 2.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
@@ -53,15 +53,13 @@
    Parameter adjustments   
        Function Body */
     /* System generated locals */
-    integer i__2, i__3;
-    /* Builtin functions */
-    double log(doublereal), sqrt(doublereal), cos(doublereal);
+    int i__2, i__3;
     /* Local variables */
-    static integer i;
-    static doublereal u[128];
-    static integer il, iv;
-    extern /* Subroutine */ int dlaruv_slu(integer *, integer *, doublereal *);
-    static integer il2;
+    static int i;
+    static double u[128];
+    static int il, iv;
+    extern /* Subroutine */ int dlaruv_slu(int *, int *, double *);
+    static int il2;
 
 
 #define U(I) u[(I)]
@@ -72,7 +70,7 @@
     for (iv = 1; iv <= *n; iv += 64) {
 /* Computing MIN */
 	i__2 = 64, i__3 = *n - iv + 1;
-	il = min(i__2,i__3);
+	il = SUPERLU_MIN(i__2,i__3);
 	if (*idist == 3) {
 	    il2 = il << 1;
 	} else {

@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -10,69 +10,55 @@ at the top-level directory.
 */
 
 /*
- * -- SuperLU routine (version 2.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * November 15, 1997
+ * August 2024
+ */
+
+/*! \file
+ * CGST01 reconstructs a matrix A from its L*U factorization and
+ * computes the residual
+ *     norm(L*U - A) / ( N * norm(A) * EPS ),
+ *  where EPS is the machine epsilon.
  *
+ * \ingroup	TestingC
  */
 #include <math.h>
 #include "slu_cdefs.h"
 
+/*!
+ * CGST01 reconstructs a matrix A from its L*U factorization and
+ * computes the residual
+ *    norm(L*U - A) / ( N * norm(A) * EPS ),
+ * where EPS is the machine epsilon.
+ *
+ * \param[in] m       The number of rows of the matrix A.  M >= 0.
+ * \param[in] n       The number of columns of the matrix A.  N >= 0.
+ * \param[in] A       The original M x N matrix A.
+ * \param[in] L       The factor matrix L, dimension(L->nrow, L->ncol).
+ * \param[in] U       The factor matrix U, dimension(U->nrow, U->ncol).
+ * \param[in] perm_c  The column permutation from CGSTRF, dimension(N).
+ * \param[in] perm_r  The pivot indices from CGSTRF, dimension(M).
+ * \param[out] resid  norm(L*U - A) / ( N * norm(A) * EPS )
+ */
 int cgst01(int m, int n, SuperMatrix *A, SuperMatrix *L, 
 		SuperMatrix *U, int *perm_c, int *perm_r, float *resid)
 {
-/* 
-    Purpose   
-    =======   
-
-    CGST01 reconstructs a matrix A from its L*U factorization and   
-    computes the residual   
-       norm(L*U - A) / ( N * norm(A) * EPS ),   
-    where EPS is the machine epsilon.   
-
-    Arguments   
-    ==========   
-
-    M       (input) INT   
-            The number of rows of the matrix A.  M >= 0.   
-
-    N       (input) INT   
-            The number of columns of the matrix A.  N >= 0.   
-
-    A       (input) SuperMatrix *, dimension (A->nrow, A->ncol)
-            The original M x N matrix A.   
-
-    L       (input) SuperMatrix *, dimension (L->nrow, L->ncol)
-            The factor matrix L.
-
-    U       (input) SuperMatrix *, dimension (U->nrow, U->ncol)
-            The factor matrix U.
-
-    perm_c (input) INT array, dimension (N)
-            The column permutation from CGSTRF.   
-
-    perm_r  (input) INT array, dimension (M)
-            The pivot indices from CGSTRF.   
-
-    RESID   (output) FLOAT*
-            norm(L*U - A) / ( N * norm(A) * EPS )   
-
-    ===================================================================== 
-*/  
-
     /* Local variables */
-    complex zero = {0.0, 0.0};
-    int i, j, k, arow, lptr,isub,  urow, superno, fsupc, u_part;
-    complex utemp;
-    complex comp_temp;
+    singlecomplex zero = {0.0, 0.0};
+    int i, j, k, arow, superno, fsupc, u_part;
+    int_t urow, lptr, isub;
+    singlecomplex utemp;
+    singlecomplex comp_temp;
     float anorm, tnorm, cnorm;
     float eps;
-    complex *work;
+    singlecomplex *work;
     SCformat *Lstore;
     NCformat *Astore, *Ustore;
-    complex *Aval, *Lval, *Uval;
-    int *colbeg, *colend;
+    singlecomplex *Aval, *Lval, *Uval;
+    int_t *colbeg, *colend;
 
     /* Function prototypes */
     extern float clangs(char *, SuperMatrix *);
@@ -84,7 +70,7 @@ int cgst01(int m, int n, SuperMatrix *A, SuperMatrix *L,
 	return 0;
     }
 
-    work = (complex *)complexCalloc(m);
+    work = (singlecomplex *)singlecomplexCalloc(m);
 
     Astore = A->Store;
     Aval = Astore->nzval;

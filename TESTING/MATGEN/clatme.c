@@ -1,75 +1,72 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include <math.h>
+#include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
-#include "f2c.h"
+#include "../../SRC/slu_sdefs.h"
 
 /* Table of constant values */
 
-static complex c_b1 = {0.f,0.f};
-static complex c_b2 = {1.f,0.f};
-static integer c__1 = 1;
-static integer c__0 = 0;
-static integer c__5 = 5;
+static singlecomplex c_b1 = {0.f,0.f};
+static singlecomplex c_b2 = {1.f,0.f};
+static int c__1 = 1;
+static int c__0 = 0;
+static int c__5 = 5;
 
-/* Subroutine */ int clatme_slu(integer *n, char *dist, integer *iseed, complex *
-	d, integer *mode, real *cond, complex *dmax__, char *ei, char *rsign, 
-	char *upper, char *sim, real *ds, integer *modes, real *conds, 
-	integer *kl, integer *ku, real *anorm, complex *a, integer *lda, 
-	complex *work, integer *info)
+/* Subroutine */ int clatme_slu(int *n, char *dist, int *iseed, singlecomplex *
+	d, int *mode, float *cond, singlecomplex *dmax__, char *ei, char *rsign,
+	char *upper, char *sim, float *ds, int *modes, float *conds,
+	int *kl, int *ku, float *anorm, singlecomplex *a, int *lda,
+	singlecomplex *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2;
-    real r__1, r__2;
-    complex q__1, q__2;
-
-    /* Builtin functions */
-    double c_abs(complex *);
-    void r_cnjg(complex *, complex *);
+    int a_dim1, a_offset, i__1, i__2;
+    float r__1, r__2;
+    singlecomplex q__1, q__2;
 
     /* Local variables */
-    static logical bads;
-    static integer isim;
-    static real temp;
-    static integer i, j;
-    extern /* Subroutine */ int cgerc_(integer *, integer *, complex *, 
-	    complex *, integer *, complex *, integer *, complex *, integer *);
-    static complex alpha;
-    extern /* Subroutine */ int cscal_(integer *, complex *, complex *, 
-	    integer *);
-    extern /* Subroutine */ int cgemv_(char *, integer *, integer *, complex *
-	    , complex *, integer *, complex *, integer *, complex *, complex *
-	    , integer *);
-    static integer iinfo;
-    static real tempa[1];
-    static integer icols, idist;
-    extern /* Subroutine */ int ccopy_(integer *, complex *, integer *, 
-	    complex *, integer *);
-    static integer irows;
-    extern /* Subroutine */ int clatm1_(integer *, real *, integer *, integer 
-	    *, integer *, complex *, integer *, integer *), slatm1_slu(integer *,
-	     real *, integer *, integer *, integer *, real *, integer *, 
-	    integer *);
-    static integer ic, jc;
-    extern doublereal clange_(char *, integer *, integer *, complex *, 
-	    integer *, real *);
-    static integer ir;
-    extern /* Subroutine */ int clarge_slu(integer *, complex *, integer *, 
-	    integer *, complex *, integer *), clarfg_(integer *, complex *, 
-	    complex *, integer *, complex *), clacgv_slu(integer *, complex *, 
-	    integer *);
-    extern /* Complex */ VOID clarnd_slu(complex *, integer *, integer *);
-    static real ralpha;
-    extern /* Subroutine */ int csscal_(integer *, real *, complex *, integer 
-	    *), claset_slu(char *, integer *, integer *, complex *, complex *, 
-	    complex *, integer *),
-	     clarnv_slu(integer *, integer *, integer *, complex *);
+    static bool bads;
+    static int isim;
+    static float temp;
+    static int i, j;
+    extern /* Subroutine */ int cgerc_(int *, int *, singlecomplex *,
+	    singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, int *);
+    static singlecomplex alpha;
+    extern /* Subroutine */ int cscal_(int *, singlecomplex *, singlecomplex *,
+	    int *);
+    extern /* Subroutine */ int cgemv_(char *, int *, int *, singlecomplex *
+	    , singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, singlecomplex *
+	    , int *);
+    static int iinfo;
+    static float tempa[1];
+    static int icols, idist;
+    extern /* Subroutine */ int ccopy_(int *, singlecomplex *, int *,
+	    singlecomplex *, int *);
+    static int irows;
+    extern /* Subroutine */ int clatm1_(int *, float *, int *, int
+	    *, int *, singlecomplex *, int *, int *), slatm1_slu(int *,
+	     float *, int *, int *, int *, float *, int *,
+	    int *);
+    static int ic, jc;
+    extern double clange_(char *, int *, int *, singlecomplex *,
+	    int *, float *);
+    static int ir;
+    extern /* Subroutine */ int clarge_slu(int *, singlecomplex *, int *,
+	    int *, singlecomplex *, int *), clarfg_(int *, singlecomplex *,
+	    singlecomplex *, int *, singlecomplex *), clacgv_slu(int *, singlecomplex *,
+	    int *);
+    extern /* Complex */ void clarnd_slu(singlecomplex *, int *, int *);
+    static float ralpha;
+    extern /* Subroutine */ int csscal_(int *, float *, singlecomplex *, int
+	    *), claset_slu(char *, int *, int *, singlecomplex *, singlecomplex *,
+	    singlecomplex *, int *),
+	     clarnv_slu(int *, int *, int *, singlecomplex *);
     extern int input_error(char *, int *);
-    static integer irsign, iupper;
-    static complex xnorms;
-    static integer jcr;
-    static complex tau;
+    static int irsign, iupper;
+    static singlecomplex xnorms;
+    static int jcr;
+    static singlecomplex tau;
 
 
 /*  -- LAPACK test routine (version 2.0) --   
@@ -350,12 +347,12 @@ static integer c__5 = 5;
 
 /*     Check DS, if MODES=0 and ISIM=1 */
 
-    bads = FALSE_;
+    bads = false;
     if (*modes == 0 && isim == 1) {
 	i__1 = *n;
 	for (j = 1; j <= i__1; ++j) {
 	    if (ds[j] == 0.f) {
-		bads = TRUE_;
+		bads = true;
 	    }
 /* L10: */
 	}
@@ -387,7 +384,7 @@ static integer c__5 = 5;
 	*info = -15;
     } else if (*ku < 1 || *ku < *n - 1 && *kl < *n - 1) {
 	*info = -16;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -19;
     }
 
@@ -426,7 +423,7 @@ static integer c__5 = 5;
 	for (i = 2; i <= i__1; ++i) {
 /* Computing MAX */
 	    r__1 = temp, r__2 = c_abs(&d[i]);
-	    temp = dmax(r__1,r__2);
+	    temp = fmax(r__1,r__2);
 /* L30: */
 	}
 
@@ -530,14 +527,14 @@ static integer c__5 = 5;
 
 	    cgemv_("C", &irows, &icols, &c_b2, &a[jcr + (ic + 1) * a_dim1], 
 		    lda, &work[1], &c__1, &c_b1, &work[irows + 1], &c__1);
-	    q__1.r = -(doublereal)tau.r, q__1.i = -(doublereal)tau.i;
+	    q__1.r = -(double)tau.r, q__1.i = -(double)tau.i;
 	    cgerc_(&irows, &icols, &q__1, &work[1], &c__1, &work[irows + 1], &
 		    c__1, &a[jcr + (ic + 1) * a_dim1], lda);
 
 	    cgemv_("N", n, &irows, &c_b2, &a[jcr * a_dim1 + 1], lda, &work[1],
 		     &c__1, &c_b1, &work[irows + 1], &c__1);
 	    r_cnjg(&q__2, &tau);
-	    q__1.r = -(doublereal)q__2.r, q__1.i = -(doublereal)q__2.i;
+	    q__1.r = -(double)q__2.r, q__1.i = -(double)q__2.i;
 	    cgerc_(n, &irows, &q__1, &work[irows + 1], &c__1, &work[1], &c__1,
 		     &a[jcr * a_dim1 + 1], lda);
 
@@ -576,14 +573,14 @@ static integer c__5 = 5;
 
 	    cgemv_("N", &irows, &icols, &c_b2, &a[ir + 1 + jcr * a_dim1], lda,
 		     &work[1], &c__1, &c_b1, &work[icols + 1], &c__1);
-	    q__1.r = -(doublereal)tau.r, q__1.i = -(doublereal)tau.i;
+	    q__1.r = -(double)tau.r, q__1.i = -(double)tau.i;
 	    cgerc_(&irows, &icols, &q__1, &work[icols + 1], &c__1, &work[1], &
 		    c__1, &a[ir + 1 + jcr * a_dim1], lda);
 
 	    cgemv_("C", &icols, n, &c_b2, &a[jcr + a_dim1], lda, &work[1], &
 		    c__1, &c_b1, &work[icols + 1], &c__1);
 	    r_cnjg(&q__2, &tau);
-	    q__1.r = -(doublereal)q__2.r, q__1.i = -(doublereal)q__2.i;
+	    q__1.r = -(double)q__2.r, q__1.i = -(double)q__2.i;
 	    cgerc_(&icols, n, &q__1, &work[1], &c__1, &work[icols + 1], &c__1,
 		     &a[jcr + a_dim1], lda);
 

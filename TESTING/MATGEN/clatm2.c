@@ -1,27 +1,22 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
-#include "f2c.h"
+#include "../../SRC/slu_scomplex.h"
 
-/* Complex */ VOID clatm2_slu(complex * ret_val, integer *m, integer *n, integer 
-	*i, integer *j, integer *kl, integer *ku, integer *idist, integer *
-	iseed, complex *d, integer *igrade, complex *dl, complex *dr, integer 
-	*ipvtng, integer *iwork, real *sparse)
+/* Complex */ void clatm2_slu(singlecomplex * ret_val, int *m, int *n, int
+	*i, int *j, int *kl, int *ku, int *idist, int *
+	iseed, singlecomplex *d, int *igrade, singlecomplex *dl, singlecomplex *dr, int
+	*ipvtng, int *iwork, float *sparse)
 {
     /* System generated locals */
-    integer i__1, i__2;
-    complex q__1, q__2, q__3;
-
-    /* Builtin functions */
-    void c_div(complex *, complex *, complex *), r_cnjg(complex *, complex *);
+    int i__1, i__2;
+    singlecomplex q__1, q__2, q__3;
 
     /* Local variables */
-    static integer isub, jsub;
-    static complex ctemp;
-    extern /* Complex */ VOID clarnd_slu(complex *, integer *, integer *);
-    extern doublereal dlaran_sluslu(integer *);
+    static int isub, jsub;
+    static singlecomplex ctemp;
+    extern /* Complex */ void clarnd_slu(singlecomplex *, int *, int *);
+    extern double dlaran_sluslu(int *);
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   

@@ -13,9 +13,10 @@ at the top-level directory.
  * \brief Performs numerical pivoting
  *
  * <pre>
- * -- SuperLU routine (version 4.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Lawrence Berkeley National Laboratory
  * June 30, 2009
+ * August 2024
  * </pre>
  */
 
@@ -68,7 +69,7 @@ ilu_cpivotL(
 	double	   fill_tol, /* in - fill tolerance of current column
 			      * used for a singular column */
 	milu_t	   milu,     /* in */
-	complex	   drop_sum, /* in - computed in ilu_ccopy_to_ucol()
+	singlecomplex	   drop_sum, /* in - computed in ilu_ccopy_to_ucol()
                                 (MILU only) */
 	GlobalLU_t *Glu,     /* modified - global LU data structures */
 	SuperLUStat_t *stat  /* output */
@@ -79,28 +80,28 @@ ilu_cpivotL(
     int		 fsupc;  /* first column in the supernode */
     int		 nsupc;  /* no of columns in the supernode */
     int		 nsupr;  /* no of rows in the supernode */
-    int		 lptr;	 /* points to the starting subscript of the supernode */
+    int_t	 lptr;	 /* points to the starting subscript of the supernode */
     register int	 pivptr;
     int		 old_pivptr, diag, ptr0;
     register float  pivmax, rtemp;
     float	 thresh;
-    complex	 temp;
-    complex	 *lu_sup_ptr;
-    complex	 *lu_col_ptr;
-    int		 *lsub_ptr;
+    singlecomplex	 temp;
+    singlecomplex	 *lu_sup_ptr;
+    singlecomplex	 *lu_col_ptr;
+    int_t	 *lsub_ptr;
     register int	 isub, icol, k, itemp;
-    int		 *lsub, *xlsub;
-    complex	 *lusup;
-    int		 *xlusup;
+    int_t	 *lsub, *xlsub;
+    singlecomplex	 *lusup;
+    int_t	 *xlusup;
     flops_t	 *ops = stat->ops;
     int		 info;
-    complex one = {1.0, 0.0};
+    singlecomplex one = {1.0, 0.0};
 
     /* Initialize pointers */
     n	       = Glu->n;
     lsub       = Glu->lsub;
     xlsub      = Glu->xlsub;
-    lusup      = (complex *) Glu->lusup;
+    lusup      = (singlecomplex *) Glu->lusup;
     xlusup     = Glu->xlusup;
     fsupc      = (Glu->xsup)[(Glu->supno)[jcol]];
     nsupc      = jcol - fsupc;		/* excluding jcol; nsupc >= 0 */
@@ -114,9 +115,9 @@ ilu_cpivotL(
        Also search for user-specified pivot, and diagonal element. */
     pivmax = -1.0;
     pivptr = nsupc;
-    diag = EMPTY;
+    diag = SLU_EMPTY;
     old_pivptr = nsupc;
-    ptr0 = EMPTY;
+    ptr0 = SLU_EMPTY;
     for (isub = nsupc; isub < nsupr; ++isub) {
         if (marker[lsub_ptr[isub]] > jcol)
             continue; /* do not overlap with a later relaxed supernode */
@@ -139,21 +140,23 @@ ilu_cpivotL(
 	if (rtemp > pivmax) { pivmax = rtemp; pivptr = isub; }
 	if (*usepr && lsub_ptr[isub] == *pivrow) old_pivptr = isub;
 	if (lsub_ptr[isub] == diagind) diag = isub;
-	if (ptr0 == EMPTY) ptr0 = isub;
+	if (ptr0 == SLU_EMPTY) ptr0 = isub;
     }
 
     if (milu == SMILU_2 || milu == SMILU_3) pivmax += drop_sum.r;
 
     /* Test for singularity */
     if (pivmax < 0.0) {
-	fprintf(stderr, "[0]: jcol=%d, SINGULAR!!!\n", jcol);
+    	/*fprintf(stderr, "[0]: jcol=%d, SINGULAR!!!\n", jcol);
 	fflush(stderr);
-	exit(1);
+	exit(1); */
+	*usepr = 0;
+	return (jcol+1);
     }
     if ( pivmax == 0.0 ) {
-	if (diag != EMPTY)
+	if (diag != SLU_EMPTY)
 	    *pivrow = lsub_ptr[pivptr = diag];
-	else if (ptr0 != EMPTY)
+	else if (ptr0 != SLU_EMPTY)
 	    *pivrow = lsub_ptr[pivptr = ptr0];
 	else {
 	    /* look for the first row which does not
@@ -161,9 +164,11 @@ ilu_cpivotL(
 	    for (icol = jcol; icol < n; icol++)
 		if (marker[swap[icol]] <= jcol) break;
 	    if (icol >= n) {
-		fprintf(stderr, "[1]: jcol=%d, SINGULAR!!!\n", jcol);
+		/* fprintf(stderr, "[1]: jcol=%d, SINGULAR!!!\n", jcol);
 		fflush(stderr);
-		exit(1);
+		exit(1); */
+   	        *usepr = 0;
+	        return (jcol+1);
 	    }
 
 	    *pivrow = swap[icol];
@@ -180,8 +185,8 @@ ilu_cpivotL(
 	printf("[0] ZERO PIVOT: FILL (%d, %d).\n", *pivrow, jcol);
 	fflush(stdout);
 #endif
-	info =jcol + 1;
-    } /* if (*pivrow == 0.0) */
+	info = jcol + 1;
+    } /* end if (*pivrow == 0.0) */
     else {
 	thresh = u * pivmax;
 
@@ -243,7 +248,7 @@ ilu_cpivotL(
 		break;
 	}
 
-    } /* else */
+    } /* end else */
 
     /* Record pivot row */
     perm_r[*pivrow] = jcol;

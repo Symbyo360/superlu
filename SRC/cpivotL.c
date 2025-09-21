@@ -13,10 +13,11 @@ at the top-level directory.
  * \brief Performs numerical pivoting
  *
  * <pre>
- * -- SuperLU routine (version 3.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Univ. of California Berkeley, Xerox Palo Alto Research Center,
  * and Lawrence Berkeley National Lab.
  * October 15, 2003
+ * August 2024
  *
  * Copyright (c) 1994 by Xerox Corporation.  All rights reserved.
  *
@@ -76,27 +77,27 @@ cpivotL(
        )
 {
 
-    complex one = {1.0, 0.0};
+    singlecomplex one = {1.0, 0.0};
     int          fsupc;	    /* first column in the supernode */
     int          nsupc;	    /* no of columns in the supernode */
     int          nsupr;     /* no of rows in the supernode */
-    int          lptr;	    /* points to the starting subscript of the supernode */
+    int_t        lptr;	    /* points to the starting subscript of the supernode */
     int          pivptr, old_pivptr, diag, diagind;
     float       pivmax, rtemp, thresh;
-    complex       temp;
-    complex       *lu_sup_ptr; 
-    complex       *lu_col_ptr;
-    int          *lsub_ptr;
-    int          isub, icol, k, itemp;
-    int          *lsub, *xlsub;
-    complex       *lusup;
-    int          *xlusup;
+    singlecomplex       temp;
+    singlecomplex       *lu_sup_ptr; 
+    singlecomplex       *lu_col_ptr;
+    int_t        *lsub_ptr;
+    int_t        isub, icol, k, itemp;
+    int_t        *lsub, *xlsub;
+    singlecomplex       *lusup;
+    int_t        *xlusup;
     flops_t      *ops = stat->ops;
 
     /* Initialize pointers */
     lsub       = Glu->lsub;
     xlsub      = Glu->xlsub;
-    lusup      = (complex *) Glu->lusup;
+    lusup      = (singlecomplex *) Glu->lusup;
     xlusup     = Glu->xlusup;
     fsupc      = (Glu->xsup)[(Glu->supno)[jcol]];
     nsupc      = jcol - fsupc;	        /* excluding jcol; nsupc >= 0 */
@@ -120,7 +121,7 @@ if ( jcol == MIN_COL ) {
     diagind = iperm_c[jcol];
     pivmax = 0.0;
     pivptr = nsupc;
-    diag = EMPTY;
+    diag = SLU_EMPTY;
     old_pivptr = nsupc;
     for (isub = nsupc; isub < nsupr; ++isub) {
         rtemp = c_abs1 (&lu_col_ptr[isub]);
@@ -134,11 +135,12 @@ if ( jcol == MIN_COL ) {
 
     /* Test for singularity */
     if ( pivmax == 0.0 ) {
-#if 1
+#if 0
+        // There is no valid pivot.
+        // jcol represents the rank of U, 
+        // report the rank, let dgstrf handle the pivot
 	*pivrow = lsub_ptr[pivptr];
 	perm_r[*pivrow] = jcol;
-#else
-	perm_r[diagind] = jcol;
 #endif
 	*usepr = 0;
 	return (jcol+1);

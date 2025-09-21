@@ -1,50 +1,45 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
 
+#include <math.h>
 #include <string.h>
-#include "f2c.h"
+#include "../../SRC/slu_scomplex.h"
 
 /* Table of constant values */
 
-static complex c_b1 = {0.f,0.f};
-static complex c_b2 = {1.f,0.f};
-static integer c__3 = 3;
-static integer c__1 = 1;
+static singlecomplex c_b1 = {0.f,0.f};
+static singlecomplex c_b2 = {1.f,0.f};
+static int c__3 = 3;
+static int c__1 = 1;
 
-/* Subroutine */ int claror_slu(char *side, char *init, integer *m, integer *n, 
-	complex *a, integer *lda, integer *iseed, complex *x, integer *info)
+/* Subroutine */ int claror_slu(char *side, char *init, int *m, int *n,
+	singlecomplex *a, int *lda, int *iseed, singlecomplex *x, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    complex q__1, q__2;
-
-    /* Builtin functions */
-    double c_abs(complex *);
-    void r_cnjg(complex *, complex *);
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    singlecomplex q__1, q__2;
 
     /* Local variables */
-    static integer kbeg, jcol;
-    static real xabs;
-    static integer irow, j;
-    extern /* Subroutine */ int cgerc_(integer *, integer *, complex *, 
-	    complex *, integer *, complex *, integer *, complex *, integer *),
-	     cscal_(integer *, complex *, complex *, integer *);
-    extern /* Subroutine */ int cgemv_(char *, integer *, integer *, complex *
-	    , complex *, integer *, complex *, integer *, complex *, complex *
-	    , integer *);
-    static complex csign;
-    static integer ixfrm, itype, nxfrm;
-    static real xnorm;
-    extern real scnrm2_(integer *, complex *, integer *);
-    extern /* Subroutine */ int clacgv_slu(integer *, complex *, integer *);
-    extern /* Complex */ VOID clarnd_slu(complex *, integer *, integer *);
-    extern /* Subroutine */ int claset_slu(char *, integer *, integer *, complex 
-	    *, complex *, complex *, integer *);
+    static int kbeg, jcol;
+    static float xabs;
+    static int irow, j;
+    extern /* Subroutine */ int cgerc_(int *, int *, singlecomplex *,
+	    singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, int *),
+	     cscal_(int *, singlecomplex *, singlecomplex *, int *);
+    extern /* Subroutine */ int cgemv_(char *, int *, int *, singlecomplex *
+	    , singlecomplex *, int *, singlecomplex *, int *, singlecomplex *, singlecomplex *
+	    , int *);
+    static singlecomplex csign;
+    static int ixfrm, itype, nxfrm;
+    static float xnorm;
+    extern float scnrm2_(int *, singlecomplex *, int *);
+    extern /* Subroutine */ int clacgv_slu(int *, singlecomplex *, int *);
+    extern /* Complex */ void clarnd_slu(singlecomplex *, int *, int *);
+    extern /* Subroutine */ int claset_slu(char *, int *, int *, singlecomplex
+	    *, singlecomplex *, singlecomplex *, int *);
     extern int input_error(char *, int *);
-    static real factor;
-    static complex xnorms;
+    static float factor;
+    static singlecomplex xnorms;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0) --   
@@ -99,7 +94,7 @@ static integer c__1 = 1;
              columns will be orthogonal, the remaining columns being   
              zero.   
              For matrices where M > N, just use the previous   
-             explaination, interchanging 'L' and 'R' and "rows" and   
+             explanation, interchanging 'L' and 'R' and "rows" and   
              "columns".   
 
              Not modified.   
@@ -254,10 +249,10 @@ static integer c__1 = 1;
 	q__1.r = xnorm * csign.r, q__1.i = xnorm * csign.i;
 	xnorms.r = q__1.r, xnorms.i = q__1.i;
 	i__2 = nxfrm + kbeg;
-	q__1.r = -(doublereal)csign.r, q__1.i = -(doublereal)csign.i;
+	q__1.r = -(double)csign.r, q__1.i = -(double)csign.i;
 	x[i__2].r = q__1.r, x[i__2].i = q__1.i;
 	factor = xnorm * (xnorm + xabs);
-	if (dabs(factor) < 1e-20f) {
+	if (fabs(factor) < 1e-20f) {
 	    *info = 1;
 	    i__2 = -(*info);
 	    input_error("CLAROR", &i__2);
@@ -279,7 +274,7 @@ static integer c__1 = 1;
 	    cgemv_("C", &ixfrm, n, &c_b2, &a[kbeg + a_dim1], lda, &x[kbeg], &
 		    c__1, &c_b1, &x[(nxfrm << 1) + 1], &c__1);
 	    q__2.r = factor, q__2.i = 0.f;
-	    q__1.r = -(doublereal)q__2.r, q__1.i = -(doublereal)q__2.i;
+	    q__1.r = -(double)q__2.r, q__1.i = -(double)q__2.i;
 	    cgerc_(&ixfrm, n, &q__1, &x[kbeg], &c__1, &x[(nxfrm << 1) + 1], &
 		    c__1, &a[kbeg + a_dim1], lda);
 
@@ -296,7 +291,7 @@ static integer c__1 = 1;
 	    cgemv_("N", m, &ixfrm, &c_b2, &a[kbeg * a_dim1 + 1], lda, &x[kbeg]
 		    , &c__1, &c_b1, &x[(nxfrm << 1) + 1], &c__1);
 	    q__2.r = factor, q__2.i = 0.f;
-	    q__1.r = -(doublereal)q__2.r, q__1.i = -(doublereal)q__2.i;
+	    q__1.r = -(double)q__2.r, q__1.i = -(double)q__2.i;
 	    cgerc_(m, &ixfrm, &q__1, &x[(nxfrm << 1) + 1], &c__1, &x[kbeg], &
 		    c__1, &a[kbeg * a_dim1 + 1], lda);
 

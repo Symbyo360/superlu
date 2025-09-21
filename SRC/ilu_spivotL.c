@@ -13,9 +13,10 @@ at the top-level directory.
  * \brief Performs numerical pivoting
  *
  * <pre>
- * -- SuperLU routine (version 4.0) --
+ * -- SuperLU routine (version 7.0.0) --
  * Lawrence Berkeley National Laboratory
  * June 30, 2009
+ * August 2024
  * </pre>
  */
 
@@ -79,7 +80,7 @@ ilu_spivotL(
     int		 fsupc;  /* first column in the supernode */
     int		 nsupc;  /* no of columns in the supernode */
     int		 nsupr;  /* no of rows in the supernode */
-    int		 lptr;	 /* points to the starting subscript of the supernode */
+    int_t	 lptr;	 /* points to the starting subscript of the supernode */
     register int	 pivptr;
     int		 old_pivptr, diag, ptr0;
     register float  pivmax, rtemp;
@@ -87,11 +88,11 @@ ilu_spivotL(
     float	 temp;
     float	 *lu_sup_ptr;
     float	 *lu_col_ptr;
-    int		 *lsub_ptr;
+    int_t	 *lsub_ptr;
     register int	 isub, icol, k, itemp;
-    int		 *lsub, *xlsub;
+    int_t	 *lsub, *xlsub;
     float	 *lusup;
-    int		 *xlusup;
+    int_t	 *xlusup;
     flops_t	 *ops = stat->ops;
     int		 info;
 
@@ -113,9 +114,9 @@ ilu_spivotL(
        Also search for user-specified pivot, and diagonal element. */
     pivmax = -1.0;
     pivptr = nsupc;
-    diag = EMPTY;
+    diag = SLU_EMPTY;
     old_pivptr = nsupc;
-    ptr0 = EMPTY;
+    ptr0 = SLU_EMPTY;
     for (isub = nsupc; isub < nsupr; ++isub) {
         if (marker[lsub_ptr[isub]] > jcol)
             continue; /* do not overlap with a later relaxed supernode */
@@ -137,21 +138,23 @@ ilu_spivotL(
 	if (rtemp > pivmax) { pivmax = rtemp; pivptr = isub; }
 	if (*usepr && lsub_ptr[isub] == *pivrow) old_pivptr = isub;
 	if (lsub_ptr[isub] == diagind) diag = isub;
-	if (ptr0 == EMPTY) ptr0 = isub;
+	if (ptr0 == SLU_EMPTY) ptr0 = isub;
     }
 
     if (milu == SMILU_2 || milu == SMILU_3) pivmax += drop_sum;
 
     /* Test for singularity */
     if (pivmax < 0.0) {
-	fprintf(stderr, "[0]: jcol=%d, SINGULAR!!!\n", jcol);
+    	/*fprintf(stderr, "[0]: jcol=%d, SINGULAR!!!\n", jcol);
 	fflush(stderr);
-	exit(1);
+	exit(1); */
+	*usepr = 0;
+	return (jcol+1);
     }
     if ( pivmax == 0.0 ) {
-	if (diag != EMPTY)
+	if (diag != SLU_EMPTY)
 	    *pivrow = lsub_ptr[pivptr = diag];
-	else if (ptr0 != EMPTY)
+	else if (ptr0 != SLU_EMPTY)
 	    *pivrow = lsub_ptr[pivptr = ptr0];
 	else {
 	    /* look for the first row which does not
@@ -159,9 +162,11 @@ ilu_spivotL(
 	    for (icol = jcol; icol < n; icol++)
 		if (marker[swap[icol]] <= jcol) break;
 	    if (icol >= n) {
-		fprintf(stderr, "[1]: jcol=%d, SINGULAR!!!\n", jcol);
+		/* fprintf(stderr, "[1]: jcol=%d, SINGULAR!!!\n", jcol);
 		fflush(stderr);
-		exit(1);
+		exit(1); */
+   	        *usepr = 0;
+	        return (jcol+1);
 	    }
 
 	    *pivrow = swap[icol];
@@ -177,8 +182,8 @@ ilu_spivotL(
 	printf("[0] ZERO PIVOT: FILL (%d, %d).\n", *pivrow, jcol);
 	fflush(stdout);
 #endif
-	info =jcol + 1;
-    } /* if (*pivrow == 0.0) */
+	info = jcol + 1;
+    } /* end if (*pivrow == 0.0) */
     else {
 	thresh = u * pivmax;
 
@@ -236,7 +241,7 @@ ilu_spivotL(
 		break;
 	}
 
-    } /* else */
+    } /* end else */
 
     /* Record pivot row */
     perm_r[*pivrow] = jcol;

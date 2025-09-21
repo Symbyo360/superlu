@@ -1,47 +1,40 @@
 /*  -- translated by f2c (version 19940927).
-   You must link the resulting object file with the libraries:
-	-lf2c -lm   (in that order)
 */
+#include "../../SRC/slu_sdefs.h"
 
-#include "f2c.h"
+#include <math.h>
 
 /* Table of constant values */
 
-static integer c__3 = 3;
-static integer c__1 = 1;
-static real c_b12 = 0.f;
-static real c_b19 = -1.f;
-static real c_b26 = 1.f;
+static int c__3 = 3;
+static int c__1 = 1;
+static float c_b12 = 0.f;
+static float c_b19 = -1.f;
+static float c_b26 = 1.f;
 
-/* Subroutine */ int slagsy_slu(integer *n, integer *k, real *d, real *a, 
-	integer *lda, integer *iseed, real *work, integer *info)
+/* Subroutine */ int slagsy_slu(int *n, int *k, float *d, float *a,
+	int *lda, int *iseed, float *work, int *info)
 {
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2, i__3;
-    real r__1;
-
-    /* Builtin functions */
-    double r_sign(real *, real *);
+    int a_dim1, a_offset, i__1, i__2, i__3;
+    float r__1;
 
     /* Local variables */
-    extern /* Subroutine */ int sger_(integer *, integer *, real *, real *, 
-	    integer *, real *, integer *, real *, integer *);
-    extern real sdot_(integer *, real *, integer *, real *, integer *), 
-	    snrm2_(integer *, real *, integer *);
-    static integer i, j;
-    extern /* Subroutine */ int ssyr2_(char *, integer *, real *, real *, 
-	    integer *, real *, integer *, real *, integer *);
-    static real alpha;
-    extern /* Subroutine */ int sscal_(integer *, real *, real *, integer *), 
-	    sgemv_(char *, integer *, integer *, real *, real *, integer *, 
-	    real *, integer *, real *, real *, integer *), saxpy_(
-	    integer *, real *, real *, integer *, real *, integer *), ssymv_(
-	    char *, integer *, real *, real *, integer *, real *, integer *, 
-	    real *, real *, integer *);
-    static real wa, wb, wn;
-    extern /* Subroutine */ int slarnv_slu(integer *, integer *, integer *, real *);
+    extern /* Subroutine */ int sger_(int *, int *, float *, float *,
+	    int *, float *, int *, float *, int *);
+    extern float sdot_(int *, float *, int *, float *, int *),
+	    snrm2_(int *, float *, int *);
+    static int i, j;
+    extern /* Subroutine */ int ssyr2_(char *, int *, float *, float *,
+	    int *, float *, int *, float *, int *);
+    static float alpha;
+    extern /* Subroutine */ int sscal_(int *, float *, float *, int *),
+	    ssymv_(char *, int *, float *, float *, int *, float *, int *,
+	    float *, float *, int *);
+    static float wa, wb, wn;
+    extern /* Subroutine */ int slarnv_slu(int *, int *, int *, float *);
     extern int input_error(char *, int *);
-    static real tau;
+    static float tau;
 
 
 /*  -- LAPACK auxiliary test routine (version 2.0)   
@@ -113,7 +106,7 @@ static real c_b26 = 1.f;
 	*info = -1;
     } else if (*k < 0 || *k > *n - 1) {
 	*info = -2;
-    } else if (*lda < max(1,*n)) {
+    } else if (*lda < SUPERLU_MAX(1,*n)) {
 	*info = -5;
     }
     if (*info < 0) {
@@ -149,7 +142,7 @@ static real c_b26 = 1.f;
 	slarnv_slu(&c__3, &iseed[1], &i__1, &work[1]);
 	i__1 = *n - i + 1;
 	wn = snrm2_(&i__1, &work[1], &c__1);
-	wa = r_sign(&wn, &work[1]);
+	wa = copysignf(wn, work[1]);
 	if (wn == 0.f) {
 	    tau = 0.f;
 	} else {
@@ -195,7 +188,7 @@ static real c_b26 = 1.f;
 
 	i__2 = *n - *k - i + 1;
 	wn = snrm2_(&i__2, &a[*k + i + i * a_dim1], &c__1);
-	wa = r_sign(&wn, &a[*k + i + i * a_dim1]);
+	wa = copysignf(wn, a[*k + i + i * a_dim1]);
 	if (wn == 0.f) {
 	    tau = 0.f;
 	} else {
@@ -216,7 +209,7 @@ static real c_b26 = 1.f;
 		, &c__1);
 	i__2 = *n - *k - i + 1;
 	i__3 = *k - 1;
-	r__1 = -(doublereal)tau;
+	r__1 = -(double)tau;
 	sger_(&i__2, &i__3, &r__1, &a[*k + i + i * a_dim1], &c__1, &work[1], &
 		c__1, &a[*k + i + (i + 1) * a_dim1], lda);
 
@@ -244,7 +237,7 @@ ht
 	ssyr2_("Lower", &i__2, &c_b19, &a[*k + i + i * a_dim1], &c__1, &work[
 		1], &c__1, &a[*k + i + (*k + i) * a_dim1], lda);
 
-	a[*k + i + i * a_dim1] = -(doublereal)wa;
+	a[*k + i + i * a_dim1] = -(double)wa;
 	i__2 = *n;
 	for (j = *k + i + 1; j <= i__2; ++j) {
 	    a[j + i * a_dim1] = 0.f;

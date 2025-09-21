@@ -1,4 +1,4 @@
-/*! \file
+/*
 Copyright (c) 2003, The Regents of the University of California, through
 Lawrence Berkeley National Laboratory (subject to receipt of any required 
 approvals from U.S. Dept. of Energy) 
@@ -18,16 +18,23 @@ at the top-level directory.
  * Last update: July 10, 2015
  *
  */
-#include <unistd.h>
+
+/*! \file
+ * \brief DGSSVX to solve systems with the same matrix but different right-hand side.
+ *
+ * \ingroup Example
+ */
+
+#include <getopt.h>
 #include "slu_ddefs.h"
 
+void parse_command_line(int argc, char *argv[], int_t *lwork,
+                        double *u, yes_no_t *equil, trans_t *trans);
+			
 int main(int argc, char *argv[])
 {
-/*
- * Purpose
- * =======
- *
- * The driver program DLINSOLX1.
+/*!
+ * \brief The driver program DLINSOLX1.
  *
  * This example illustrates how to use DGSSVX to solve systems with the same
  * A but different right-hand side.
@@ -47,13 +54,13 @@ int main(int argc, char *argv[])
     GlobalLU_t	   Glu; /* facilitate multiple factorizations with 
                            SamePattern_SameRowPerm                  */
     double         *a;
-    int            *asub, *xa;
+    int_t          *asub, *xa;
     int            *perm_c; /* column permutation vector */
     int            *perm_r; /* row permutations from partial pivoting */
     int            *etree;
-    void           *work;
-    int            info, lwork, nrhs, ldx;
-    int            i, m, n, nnz;
+    void           *work = NULL;
+    int            m, n, nrhs, ldx;
+    int_t          info, lwork, nnz;
     double         *rhsb, *rhsx, *xact;
     double         *R, *C;
     double         *ferr, *berr;
@@ -62,8 +69,6 @@ int main(int argc, char *argv[])
     superlu_options_t options;
     SuperLUStat_t stat;
     FILE           *fp = stdin;
-
-    extern void    parse_command_line();
 
 #if ( DEBUGlevel>=1 )
     CHECK_MALLOC("Enter main()");
@@ -108,7 +113,7 @@ int main(int argc, char *argv[])
     
     dCreate_CompCol_Matrix(&A, m, n, nnz, a, asub, xa, SLU_NC, SLU_D, SLU_GE);
     Astore = A.Store;
-    printf("Dimension %dx%d; # nonzeros %d\n", A.nrow, A.ncol, Astore->nnz);
+    printf("Dimension %dx%d; # nonzeros %d\n", (int)A.nrow, (int)A.ncol, (int)Astore->nnz);
     
     if ( !(rhsb = doubleMalloc(m * nrhs)) ) ABORT("Malloc fails for rhsb[].");
     if ( !(rhsx = doubleMalloc(m * nrhs)) ) ABORT("Malloc fails for rhsx[].");
@@ -119,9 +124,9 @@ int main(int argc, char *argv[])
     dGenXtrue(n, nrhs, xact, ldx);
     dFillRHS(trans, nrhs, xact, ldx, &A, &B);
     
-    if ( !(etree = intMalloc(n)) ) ABORT("Malloc fails for etree[].");
-    if ( !(perm_r = intMalloc(m)) ) ABORT("Malloc fails for perm_r[].");
-    if ( !(perm_c = intMalloc(n)) ) ABORT("Malloc fails for perm_c[].");
+    if ( !(etree = int32Malloc(n)) ) ABORT("Malloc fails for etree[].");
+    if ( !(perm_r = int32Malloc(m)) ) ABORT("Malloc fails for perm_r[].");
+    if ( !(perm_c = int32Malloc(n)) ) ABORT("Malloc fails for perm_c[].");
     if ( !(R = (double *) SUPERLU_MALLOC(A.nrow * sizeof(double))) ) 
         ABORT("SUPERLU_MALLOC fails for R[].");
     if ( !(C = (double *) SUPERLU_MALLOC(A.ncol * sizeof(double))) )
@@ -140,7 +145,7 @@ int main(int argc, char *argv[])
            &L, &U, work, lwork, &B, &X, &rpg, &rcond, ferr, berr,
            &Glu, &mem_usage, &stat, &info);
 
-    printf("LU factorization: dgssvx() returns info %d\n", info);
+    printf("LU factorization: dgssvx() returns info %lld\n", (long long)info);
 
     if ( info == 0 || info == n+1 ) {
 
@@ -149,9 +154,9 @@ int main(int argc, char *argv[])
 	    printf("Recip. condition number = %e\n", rcond);
         Lstore = (SCformat *) L.Store;
         Ustore = (NCformat *) U.Store;
-	printf("No of nonzeros in factor L = %d\n", Lstore->nnz);
-    	printf("No of nonzeros in factor U = %d\n", Ustore->nnz);
-    	printf("No of nonzeros in L+U = %d\n", Lstore->nnz + Ustore->nnz - n);
+	printf("No of nonzeros in factor L = %lld\n", (long long) Lstore->nnz);
+    	printf("No of nonzeros in factor U = %lld\n", (long long) Ustore->nnz);
+    	printf("No of nonzeros in L+U = %lld\n", (long long) Lstore->nnz + Ustore->nnz - n);
     	printf("FILL ratio = %.1f\n", (float)(Lstore->nnz + Ustore->nnz - n)/nnz);
 
 	printf("L\\U MB %.3f\ttotal MB needed %.3f\n",
@@ -159,7 +164,7 @@ int main(int argc, char *argv[])
 	fflush(stdout);
 
     } else if ( info > 0 && lwork == -1 ) {
-        printf("** Estimated memory: %d bytes\n", info - n);
+        printf("** Estimated memory: %lld bytes\n", (long long)info - n);
     }
 
     if ( options.PrintStat ) StatPrint(&stat);
@@ -178,22 +183,23 @@ int main(int argc, char *argv[])
            &L, &U, work, lwork, &B, &X, &rpg, &rcond, ferr, berr,
            &Glu, &mem_usage, &stat, &info);
 
-    printf("Triangular solve: dgssvx() returns info %d\n", info);
+    printf("Triangular solve: dgssvx() returns info %lld\n", (long long)info);
 
     if ( info == 0 || info == n+1 ) {
 
         /* This is how you could access the solution matrix. */
         double *sol = (double*) ((DNformat*) X.Store)->nzval; 
+        (void)sol;  // suppress unused variable warning
 
 	if ( options.IterRefine ) {
             printf("Iterative Refinement:\n");
 	    printf("%8s%8s%16s%16s\n", "rhs", "Steps", "FERR", "BERR");
-	    for (i = 0; i < nrhs; ++i)
+	    for (int i = 0; i < nrhs; ++i)
 	      printf("%8d%8d%16e%16e\n", i+1, stat.RefineSteps, ferr[i], berr[i]);
 	}
 	fflush(stdout);
     } else if ( info > 0 && lwork == -1 ) {
-        printf("** Estimated memory: %d bytes\n", info - n);
+        printf("** Estimated memory: %lld bytes\n", (long long)info - n);
     }
 
     if ( options.PrintStat ) StatPrint(&stat);
@@ -223,13 +229,14 @@ int main(int argc, char *argv[])
 #if ( DEBUGlevel>=1 )
     CHECK_MALLOC("Exit main()");
 #endif
+    return EXIT_SUCCESS;
 }
 
-/*  
- * Parse command line options to get relaxed snode size, panel size, etc.
+/*!
+ * \brief Parse command line options to get relaxed snode size, panel size, etc.
  */
 void
-parse_command_line(int argc, char *argv[], int *lwork,
+parse_command_line(int argc, char *argv[], int_t *lwork,
                    double *u, yes_no_t *equil, trans_t *trans )
 {
     int c;
