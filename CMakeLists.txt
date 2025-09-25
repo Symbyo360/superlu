@@ -260,7 +260,9 @@ add_custom_target(examples)
 #   add_subdirectory(FORTRAN)
 # endif()
 
-add_subdirectory(EXAMPLE)
+if(enable_examples)
+	add_subdirectory(EXAMPLE)
+endif()
 
 # To work around CMake bug #18708 that got fixed in 3.28.0, for
 # older CMake disable finding Doxygen unless explicitly enabled
